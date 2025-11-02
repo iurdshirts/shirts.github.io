@@ -3,249 +3,368 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pedidos – Panel (Protegido)</title>
+<title>Pedidos – Panel (Tarjetas + Filtros)</title>
 <style>
   :root{
-    --bg:#f6f7f9; --fg:#222; --card:#fff; --muted:#6b7280; --line:#e5e7eb;
-    --btn:#0a7cff; --btn-ghost:#eef2f7; --btn-ghost-fg:#0a2850;
+    --bg:#f6f7f9; --fg:#222; --muted:#6b7280; --line:#e5e7eb;
+    --blue:#0a7cff; --ghost:#eef2f7; --ghostfg:#0a2850;
+    --red:#ef4444; --orange:#fb923c; --green:#22c55e;
+    --redbg:#fee2e2; --orangebg:#fff7ed; --greenbg:#dcfce7;
   }
-  html,body{height:100%}
-  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
-  .wrap{
-    max-width:1200px;margin:1rem auto;background:var(--card);
-    padding:1rem 1rem 1.25rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:var(--bg);color:var(--fg)}
+  .wrap{max-width:1200px;margin:1rem auto;padding:1rem}
+  h1{text-align:center;margin:1rem 0}
+  .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:1rem}
+  input[type="password"], input[type="text"], select{
+    padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;font-size:.95rem
   }
-  h1{margin:.25rem 0 1rem;text-align:center;font-size:1.4rem}
-  .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:.75rem}
-  .row.left{justify-content:flex-start}
-  input[type="password"], input[type="text"]{
-    padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;min-width:260px;font-size:.95rem
-  }
-  button{
-    padding:.6rem .9rem;border-radius:10px;border:0;background:var(--btn);color:#fff;cursor:pointer;font-size:.95rem
-  }
-  button.secondary{background:var(--btn-ghost);color:var(--btn-ghost-fg);border:1px solid #d8dee6}
+  button{padding:.6rem .9rem;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-size:.95rem}
+  button.secondary{background:var(--ghost);color:var(--ghostfg);border:1px solid #d8dee6}
   .muted{color:var(--muted)}
   .hidden{display:none}
-  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
-  table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
-  th,td{padding:.6rem .6rem;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:top}
-  thead th{position:sticky;top:0;z-index:1;background:#f9fafb;border-bottom:1px solid var(--line)}
-  th:nth-child(1), td:nth-child(1){width:48px}
-  th:nth-child(2), td:nth-child(2){width:160px}
-  th:nth-child(3), td:nth-child(3){width:160px}
-  th:nth-child(4), td:nth-child(4){width:120px}
-  th:nth-child(5), td:nth-child(5){width:110px}
-  th:nth-child(6), td:nth-child(6){width:220px}
-  th:nth-child(7),td:nth-child(7),
-  th:nth-child(8),td:nth-child(8),
-  th:nth-child(9),td:nth-child(9),
-  th:nth-child(10),td:nth-child(10),
-  th:nth-child(11),td:nth-child(11),
-  th:nth-child(12),td:nth-child(12){width:64px;text-align:right}
-  th:nth-child(13),td:nth-child(13){width:76px;text-align:right}
-  th:nth-child(14),td:nth-child(14){width:76px;text-align:right}
-  th:nth-child(15),td:nth-child(15){width:92px;text-align:right}
-  th:nth-child(16),td:nth-child(16),
-  th:nth-child(17),td:nth-child(17){width:110px;text-align:center}
-  th:nth-child(18),td:nth-child(18){width:100px;text-align:center}
-  td{word-break:break-word}
-  td.num{font-variant-numeric:tabular-nums}
-  td input[type="checkbox"]{transform:scale(1.1)}
-  .danger{background:#e11d48;color:#fff;border:0;padding:.45rem .7rem;border-radius:8px}
-  @media (max-width: 700px){
-    .wrap{margin:.5rem;border-radius:10px;padding:.75rem}
-    h1{font-size:1.1rem}
-    th,td{font-size:.86rem;padding:.5rem}
-    input[type="password"], input[type="text"]{min-width:200px}
+
+  .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:space-between;align-items:center;margin:.75rem 0}
+  .filters{display:flex;gap:.5rem;flex-wrap:wrap}
+  .stats{display:flex;gap:.6rem;flex-wrap:wrap}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:.5rem .75rem;font-size:.9rem}
+  .stat b{font-variant-numeric:tabular-nums}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:1rem}
+  .card{
+    border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.08);
+    padding:1rem;display:flex;flex-direction:column;gap:.5rem;
+    transition:background .2s,border-left .2s;
+    border-left:5px solid var(--blue); background:#fff;
   }
+  .status-red{background:var(--redbg);border-left-color:var(--red)}
+  .status-orange{background:var(--orangebg);border-left-color:var(--orange)}
+  .status-green{background:var(--greenbg);border-left-color:var(--green)}
+
+  .card h2{margin:0 0 .3rem;font-size:1.1rem;color:#0a2850}
+  .card p{margin:.2rem 0;font-size:.9rem;line-height:1.4}
+  .grid{display:grid;grid-template-columns:auto auto;gap:.2rem .8rem;font-size:.9rem}
+  .total{font-weight:700;text-align:right;margin-top:.5rem}
+  .actions{display:flex;gap:.5rem;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+  .btn{padding:.4rem .7rem;border-radius:8px;border:0;font-size:.85rem;cursor:pointer}
+  .delete{background:var(--red);color:#fff}
+  .check{accent-color:var(--blue);transform:scale(1.2)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Pedidos – Panel</h1>
 
-  <!-- Password gate (client-side only) -->
-  <div id="gate" class="row left">
-    <input id="passwordInput" type="password" placeholder="Contraseña" />
+  <!-- Password Gate -->
+  <div id="gate" class="row">
+    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)">
     <button id="unlock">Entrar</button>
+    <span class="muted">Contraseña por defecto: <code>password</code></span>
   </div>
 
   <div id="panel" class="hidden">
-    <div class="row">
-      <button id="reload" class="secondary">Cargar</button>
-      <button id="export" class="secondary">Exportar CSV</button>
-      <button id="lock" class="secondary">Bloquear</button>
+    <!-- Toolbar: filters + actions + summary -->
+    <div class="toolbar">
+      <div class="filters">
+        <select id="filterPaid">
+          <option value="all">Pago: Todos</option>
+          <option value="paid">Pagado</option>
+          <option value="unpaid">No pagado</option>
+        </select>
+        <select id="filterDelivered">
+          <option value="all">Entrega: Todos</option>
+          <option value="delivered">Entregado</option>
+          <option value="undelivered">No entregado</option>
+        </select>
+        <select id="filterState">
+          <option value="">Estado: Todos</option>
+          <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+          <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+          <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+          <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+          <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+          <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+          <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+          <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+          <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+          <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+          <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+          <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
+        </select>
+        <input id="searchCoord" type="text" placeholder="Buscar coordinador…">
+        <select id="sortBy">
+          <option value="date_desc">Ordenar: Fecha ↓</option>
+          <option value="date_asc">Fecha ↑</option>
+          <option value="total_desc">Total camisas ↓</option>
+          <option value="total_asc">Total camisas ↑</option>
+          <option value="amount_desc">Total $ ↓</option>
+          <option value="amount_asc">Total $ ↑</option>
+          <option value="coord_asc">Coordinador A–Z</option>
+          <option value="coord_desc">Coordinador Z–A</option>
+          <option value="state_asc">Estado A–Z</option>
+          <option value="state_desc">Estado Z–A</option>
+          <option value="status">Estado de pago/entrega</option>
+        </select>
+        <button id="clearFilters" class="secondary">Limpiar</button>
+      </div>
+      <div class="row" style="gap:.5rem">
+        <button id="reload" class="secondary">Recargar</button>
+        <button id="export" class="secondary">Exportar CSV</button>
+        <button id="lock" class="secondary">Bloquear</button>
+      </div>
     </div>
 
-    <div class="table-wrap">
-      <table id="tbl">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Fecha (UTC)</th>
-            <th>Coordinador</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Dirección</th>
-            <th>S</th><th>M</th><th>L</th>
-            <th>XL</th><th>2XL</th><th>3XL</th>
-            <th>Total</th>
-            <th>$ c/u</th>
-            <th>Total $</th>
-            <th>Confirmado</th>
-            <th>Entregado</th>
-            <th>Eliminar</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <!-- Summary -->
+    <div class="stats" id="summary">
+      <div class="stat">Total pedidos: <b id="sumOrders">0</b></div>
+      <div class="stat">Pagados: <b id="sumPaid">0</b></div>
+      <div class="stat">Entregados: <b id="sumDelivered">0</b></div>
+      <div class="stat">Por entregar: <b id="sumToDeliver">0</b></div>
+      <div class="stat">Total camisas: <b id="sumShirts">0</b></div>
+      <div class="stat">Total $: <b id="sumAmount">$0.00</b></div>
     </div>
+
+    <div id="cards" class="cards"></div>
   </div>
 </div>
 
 <script>
-/* --- Config --- */
 const API_BASE = "https://api.salcedo.app";
 const ORDERS_URL = API_BASE + "/orders";
-
-/* Keep the server API key exactly as before (unchanged on backend) */
-const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb";
-
-/* Client-side password gate only (does NOT change server key) */
-const GATE_PASSWORD = "password"; // change this anytime for the page gate
+const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb"; // backend key unchanged
+const GATE_PASSWORD = "password";
 const LS_KEY = "iurd_orders_password";
 
-/* --- Auth (password gate) --- */
+let ALL_ORDERS = [];   // raw from API
+let VIEW_ORDERS = [];  // after filters/sort
+
+/* --- Auth --- */
 function getPassword(){ return localStorage.getItem(LS_KEY) || ""; }
 function setPassword(p){ localStorage.setItem(LS_KEY, p); }
 function clearPassword(){ localStorage.removeItem(LS_KEY); }
-function setUI(authed){
+function setUI(authed){ 
   document.getElementById('gate').classList.toggle('hidden', authed);
   document.getElementById('panel').classList.toggle('hidden', !authed);
 }
-async function unlock(){
+document.getElementById('unlock').addEventListener('click', async ()=>{
   const pw = document.getElementById('passwordInput').value.trim();
-  if(!pw){ alert("Ingresa la contraseña."); return; }
-  if(pw === GATE_PASSWORD){
-    setPassword(pw);
-    setUI(true);
-    await loadTable();
-  } else {
-    alert("Contraseña incorrecta.");
-  }
-}
-function lock(){ clearPassword(); setUI(false); document.getElementById('passwordInput').value = ""; }
+  if(pw === GATE_PASSWORD){ setPassword(pw); setUI(true); await refresh(); }
+  else alert("Contraseña incorrecta.");
+});
+document.getElementById('lock').addEventListener('click', ()=>{ clearPassword(); setUI(false); });
 
-document.getElementById('unlock').addEventListener('click', unlock);
-document.getElementById('lock').addEventListener('click', lock);
-
-/* --- API helpers (always send API_KEY header) --- */
-function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
-function esc(s){ return String(s??"").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m])); }
-
+/* --- API --- */
 async function apiGetOrders(){
-  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": API_KEY }});
+  const res = await fetch(ORDERS_URL,{headers:{"X-API-Key":API_KEY}});
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
-async function apiPatchRow(row_id, patch){
-  const res = await fetch(`${ORDERS_URL}/${row_id}`, {
-    method: "PATCH",
-    headers: { "X-API-Key": API_KEY, "Content-Type":"application/json" },
-    body: JSON.stringify(patch)
+async function apiPatchRow(id, patch){
+  const res = await fetch(`${ORDERS_URL}/${id}`,{
+    method:"PATCH",
+    headers:{"X-API-Key":API_KEY,"Content-Type":"application/json"},
+    body:JSON.stringify(patch)
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
-async function apiDeleteRow(row_id){
-  const res = await fetch(`${ORDERS_URL}/${row_id}`, {
-    method: "DELETE",
-    headers: { "X-API-Key": API_KEY }
+async function apiDeleteRow(id){
+  const res = await fetch(`${ORDERS_URL}/${id}`,{
+    method:"DELETE",
+    headers:{"X-API-Key":API_KEY}
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
-/* --- Table rendering --- */
-function rowHtml(o){
-  const c = (String(o.confirmed).toLowerCase()==="true");
-  const d = (String(o.delivered).toLowerCase()==="true");
-  return `<tr data-id="${o.row_id}">
-    <td>${o.row_id}</td>
-    <td>${esc(o.timestamp)}</td>
-    <td>${esc(o.coordinator)}</td>
-    <td>${esc(o.phone)}</td>
-    <td>${esc(o.state)}</td>
-    <td>${esc(o.address)}</td>
-    <td class="num">${o.S}</td><td class="num">${o.M}</td><td class="num">${o.L}</td>
-    <td class="num">${o.XL}</td><td class="num">${o.XXL}</td><td class="num">${o.XXXL}</td>
-    <td class="num">${o.total}</td>
-    <td class="num">${money(o.price_per_shirt)}</td>
-    <td class="num">${money(o.total_cost)}</td>
-    <td style="text-align:center"><input type="checkbox" class="chk-confirm" ${c?'checked':''}></td>
-    <td style="text-align:center"><input type="checkbox" class="chk-deliver" ${d?'checked':''}></td>
-    <td style="text-align:center"><button class="del danger">Eliminar</button></td>
-  </tr>`;
+/* --- Utilities --- */
+function statusClass(o){
+  const paid = String(o.confirmed).toLowerCase()==="true";
+  const delivered = String(o.delivered).toLowerCase()==="true";
+  if(paid && delivered) return "status-green";
+  if(paid && !delivered) return "status-orange";
+  return "status-red";
+}
+function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
+function normalize(s){ return String(s||"").toLowerCase(); }
+
+/* --- Render --- */
+function cardHtml(o){
+  const paid = String(o.confirmed).toLowerCase()==="true";
+  const delivered = String(o.delivered).toLowerCase()==="true";
+  return `
+  <div class="card ${statusClass(o)}" data-id="${o.row_id}">
+    <h2>Pedido #${o.row_id}</h2>
+    <p><strong>Fecha:</strong> ${new Date(o.timestamp).toLocaleString()}</p>
+    <p><strong>Coordinador:</strong> ${o.coordinator}</p>
+    <p><strong>Teléfono:</strong> ${o.phone}</p>
+    <p><strong>Dirección:</strong> ${o.address}</p>
+    <p><strong>Estado:</strong> ${o.state}</p>
+    <div class="grid">
+      <div>S:</div><div>${o.S}</div>
+      <div>M:</div><div>${o.M}</div>
+      <div>L:</div><div>${o.L}</div>
+      <div>XL:</div><div>${o.XL}</div>
+      <div>2XL:</div><div>${o.XXL}</div>
+      <div>3XL:</div><div>${o.XXXL}</div>
+    </div>
+    <p class="total">Total camisas: ${o.total} – <strong>${money(o.total_cost)}</strong></p>
+    <div class="actions">
+      <div>
+        <label><input type="checkbox" class="check chk-confirm" ${paid?'checked':''}> Pagado</label>
+        &nbsp;&nbsp;
+        <label><input type="checkbox" class="check chk-deliver" ${delivered?'checked':''}> Entregado</label>
+      </div>
+      <button class="btn delete">Eliminar</button>
+    </div>
+  </div>`;
 }
 
-async function loadTable(){
+function render(){
+  const container = document.getElementById("cards");
+  container.innerHTML = VIEW_ORDERS.map(cardHtml).join("");
+
+  // summary
+  const totalOrders = VIEW_ORDERS.length;
+  const paidCount = VIEW_ORDERS.filter(o=>String(o.confirmed).toLowerCase()==="true").length;
+  const deliveredCount = VIEW_ORDERS.filter(o=>String(o.delivered).toLowerCase()==="true").length;
+  const toDeliver = paidCount - deliveredCount;
+  const totalShirts = VIEW_ORDERS.reduce((sum,o)=>sum + Number(o.total||0), 0);
+  const totalAmount = VIEW_ORDERS.reduce((sum,o)=>sum + Number(o.total_cost||0), 0);
+
+  document.getElementById("sumOrders").textContent = totalOrders;
+  document.getElementById("sumPaid").textContent = paidCount;
+  document.getElementById("sumDelivered").textContent = deliveredCount;
+  document.getElementById("sumToDeliver").textContent = Math.max(0,toDeliver);
+  document.getElementById("sumShirts").textContent = totalShirts;
+  document.getElementById("sumAmount").textContent = money(totalAmount);
+}
+
+/* --- Filters & sort --- */
+function applyFilters(){
+  const paid = document.getElementById("filterPaid").value;          // all | paid | unpaid
+  const delivered = document.getElementById("filterDelivered").value;// all | delivered | undelivered
+  const state = document.getElementById("filterState").value.trim(); // "" or exact state
+  const q = normalize(document.getElementById("searchCoord").value);
+
+  let list = [...ALL_ORDERS];
+  list = list.filter(o=>{
+    const isPaid = String(o.confirmed).toLowerCase()==="true";
+    const isDelivered = String(o.delivered).toLowerCase()==="true";
+    if(paid==="paid" && !isPaid) return false;
+    if(paid==="unpaid" && isPaid) return false;
+    if(delivered==="delivered" && !isDelivered) return false;
+    if(delivered==="undelivered" && isDelivered) return false;
+    if(state && String(o.state)!==state) return false;
+    if(q && !normalize(o.coordinator).includes(q)) return false;
+    return true;
+  });
+  VIEW_ORDERS = list;
+}
+
+function applySort(){
+  const sort = document.getElementById("sortBy").value;
+  const statusRank = o=>{
+    const paid = String(o.confirmed).toLowerCase()==="true";
+    const del = String(o.delivered).toLowerCase()==="true";
+    if(paid && del) return 0;     // best
+    if(paid && !del) return 1;
+    return 2;                     // worst
+  };
+  VIEW_ORDERS.sort((a,b)=>{
+    switch(sort){
+      case "date_desc": return new Date(b.timestamp)-new Date(a.timestamp);
+      case "date_asc":  return new Date(a.timestamp)-new Date(b.timestamp);
+      case "total_desc": return (b.total|0)-(a.total|0);
+      case "total_asc":  return (a.total|0)-(b.total|0);
+      case "amount_desc": return (b.total_cost||0)-(a.total_cost||0);
+      case "amount_asc":  return (a.total_cost||0)-(b.total_cost||0);
+      case "coord_asc": return String(a.coordinator).localeCompare(String(b.coordinator));
+      case "coord_desc": return String(b.coordinator).localeCompare(String(a.coordinator));
+      case "state_asc": return String(a.state).localeCompare(String(b.state));
+      case "state_desc": return String(b.state).localeCompare(String(a.state));
+      case "status": return statusRank(a)-statusRank(b) || (new Date(b.timestamp)-new Date(a.timestamp));
+      default: return 0;
+    }
+  });
+}
+
+function wireFilters(){
+  const ids = ["filterPaid","filterDelivered","filterState","searchCoord","sortBy"];
+  ids.forEach(id=> document.getElementById(id).addEventListener("input", ()=>{
+    applyFilters(); applySort(); render();
+  }));
+  document.getElementById("clearFilters").addEventListener("click", ()=>{
+    document.getElementById("filterPaid").value = "all";
+    document.getElementById("filterDelivered").value = "all";
+    document.getElementById("filterState").value = "";
+    document.getElementById("searchCoord").value = "";
+    document.getElementById("sortBy").value = "date_desc";
+    applyFilters(); applySort(); render();
+  });
+}
+
+/* --- Data flow --- */
+async function refresh(){
   const data = await apiGetOrders();
-  document.querySelector("#tbl tbody").innerHTML = data.orders.map(rowHtml).join("");
+  ALL_ORDERS = data.orders || [];
+  applyFilters(); applySort(); render();
 }
 
-document.getElementById('reload').addEventListener('click', loadTable);
+document.getElementById('reload').addEventListener('click', refresh);
 
-/* Export what you see */
+/* Export CSV (current view) */
 document.getElementById('export').addEventListener('click', ()=>{
-  const table = document.querySelector("#tbl");
-  if(!table) return;
-  const csv = [];
-  table.querySelectorAll("tr").forEach(tr=>{
-    const cells = [...tr.children].map(td=>{
-      const input = td.querySelector('input');
-      const text = input ? (input.checked ? "true":"false") : td.textContent.trim();
-      return `"${text.replaceAll('"','""')}"`;
-    });
-    csv.push(cells.join(","));
-  });
-  const blob = new Blob([csv.join("\n")], {type:"text/csv"});
+  const headers = ["#","Fecha","Coordinador","Teléfono","Estado","Dirección","S","M","L","XL","2XL","3XL","Total","$ c/u","Total $","Pagado","Entregado"];
+  const rows = VIEW_ORDERS.map(o=>[
+    o.row_id, o.timestamp, o.coordinator, o.phone, o.state, o.address,
+    o.S, o.M, o.L, o.XL, o.XXL, o.XXXL, o.total, o.price_per_shirt, o.total_cost,
+    String(o.confirmed).toLowerCase()==="true", String(o.delivered).toLowerCase()==="true"
+  ]);
+  const csv = [headers, ...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
   const url = URL.createObjectURL(blob);
   const a = Object.assign(document.createElement('a'), {href:url, download:`orders_${Date.now()}.csv`});
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 });
 
-/* Delegated events for toggles & delete */
-document.querySelector("#tbl").addEventListener("change", async (e)=>{
-  const tr = e.target.closest("tr"); if(!tr) return;
-  const row_id = tr.getAttribute("data-id");
-  if(e.target.classList.contains("chk-confirm")){
-    try{ await apiPatchRow(row_id, { confirmed: e.target.checked }); }
-    catch{ alert("No se pudo actualizar (confirmado)."); e.target.checked = !e.target.checked; }
+/* Card actions */
+document.addEventListener("change", async e=>{
+  const card = e.target.closest(".card"); if(!card) return;
+  const id = card.dataset.id;
+  if(e.target.classList.contains("chk-confirm") || e.target.classList.contains("chk-deliver")){
+    const paid = e.target.classList.contains("chk-confirm") ? e.target.checked : card.querySelector(".chk-confirm").checked;
+    const delivered = e.target.classList.contains("chk-deliver") ? e.target.checked : card.querySelector(".chk-deliver").checked;
+    try{
+      if(e.target.classList.contains("chk-confirm")) await apiPatchRow(id,{confirmed:paid});
+      if(e.target.classList.contains("chk-deliver")) await apiPatchRow(id,{delivered:delivered});
+      // Reflect in local data
+      const idx = ALL_ORDERS.findIndex(o=>String(o.row_id)===String(id));
+      if(idx>=0){ ALL_ORDERS[idx].confirmed = paid; ALL_ORDERS[idx].delivered = delivered; }
+      applyFilters(); applySort(); render();
+    }catch{
+      alert("Error al actualizar estado.");
+      e.target.checked = !e.target.checked;
+    }
   }
-  if(e.target.classList.contains("chk-deliver")){
-    try{ await apiPatchRow(row_id, { delivered: e.target.checked }); }
-    catch{ alert("No se pudo actualizar (entregado)."); e.target.checked = !e.target.checked; }
+});
+document.addEventListener("click", async e=>{
+  if(!e.target.classList.contains("delete")) return;
+  const card = e.target.closest(".card"); if(!card) return;
+  const id = card.dataset.id;
+  if(confirm(`¿Eliminar pedido #${id}?`)){
+    try{ await apiDeleteRow(id);
+      ALL_ORDERS = ALL_ORDERS.filter(o=>String(o.row_id)!==String(id));
+      applyFilters(); applySort(); render();
+    }catch{ alert("No se pudo eliminar el pedido."); }
   }
 });
 
-document.querySelector("#tbl").addEventListener("click", async (e)=>{
-  if(!e.target.classList.contains("del")) return;
-  const tr = e.target.closest("tr");
-  const row_id = tr.getAttribute("data-id");
-  if(!confirm(`¿Eliminar fila #${row_id}?`)) return;
-  try{ await apiDeleteRow(row_id); tr.remove(); }
-  catch{ alert("No se pudo eliminar la fila."); }
-});
-
-/* Optional: remember successful unlock across reloads */
-(function tryAutoUnlock(){
-  if(getPassword() === GATE_PASSWORD){
-    setUI(true);
-    loadTable().catch(()=>{}); // noop on fail
-  }
-})();
+/* Init */
+wireFilters();
+/* Auto login */
+(function(){ if(getPassword()===GATE_PASSWORD){ setUI(true); refresh().catch(()=>{});} })();
 </script>
 </body>
 </html>
