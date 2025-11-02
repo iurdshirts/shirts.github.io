@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IURD Shirts – Order Form</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#f6f7f9;color:#222}
+  .wrap{max-width:760px;margin:2rem auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+  h1{margin-top:0;text-align:center}
+  label{display:block;margin-top:1rem;font-weight:600}
+  input,select{width:100%;padding:.6rem;margin-top:.3rem;border:1px solid #ccc;border-radius:6px;font-size:1rem}
+  .sizes{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.75rem;margin-top:.5rem}
+  .size-box{border:1px solid #ddd;border-radius:8px;padding:.75rem;background:#fafafa;text-align:center}
+  .size-box label{display:block;font-weight:600;margin-bottom:.3rem}
+  .total{margin-top:1.25rem;font-size:1.1rem;font-weight:700;text-align:right}
+  .summary{margin-top:1.25rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb}
+  .summary header{padding:.75rem 1rem;border-bottom:1px solid #e5e7eb;font-weight:700}
+  .summary .content{padding:1rem}
+  .summary .grid{display:grid;grid-template-columns:1fr auto;gap:.5rem .75rem}
+  .muted{color:#6b7280}
+  .hr{height:1px;background:#e5e7eb;margin:.75rem 0}
+  .actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.25rem}
+  button,a.btn{flex:1 1 220px;padding:.9rem 1rem;border-radius:10px;text-decoration:none;text-align:center;cursor:pointer}
+  button.primary{background:#0a7cff;color:#fff;border:0}
+  a.btn{background:#eef2f7;color:#0a2850;border:1px solid #d8dee6}
+  a.btn:hover,button.primary:hover{filter:brightness(0.95)}
+  .right{text-align:right}
+  .money{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>IURD T-Shirt Order Form</h1>
+
+  <form id="orderForm" oninput="updateTotals()">
+    <!-- Coordinator -->
+    <label for="coordinator">Name of Coordinator</label>
+    <input type="text" id="coordinator" placeholder="John Doe" required>
+
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" placeholder="(555) 555-5555" required>
+
+    <!-- State -->
+    <label for="state">Select Your State</label>
+    <select id="state" required>
+      <option value="">Choose…</option>
+      <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+      <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+      <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+      <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+      <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+      <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+      <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+      <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+      <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+      <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+      <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+      <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+      <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
+    </select>
+
+    <!-- Address -->
+    <label for="address">Address of Delivery</label>
+    <input type="text" id="address" placeholder="123 Main St, City, State ZIP" required>
+
+    <!-- Sizes + Quantity -->
+    <label>Sizes (S–3XL) – Enter Quantity for Each</label>
+    <div class="sizes">
+      <div class="size-box">
+        <label for="S">Small (S)</label>
+        <input type="number" id="S" min="0" value="0">
+      </div>
+      <div class="size-box">
+        <label for="M">Medium (M)</label>
+        <input type="number" id="M" min="0" value="0">
+      </div>
+      <div class="size-box">
+        <label for="L">Large (L)</label>
+        <input type="number" id="L" min="0" value="0">
+      </div>
+      <div class="size-box">
+        <label for="XL">Extra Large (XL)</label>
+        <input type="number" id="XL" min="0" value="0">
+      </div>
+      <div class="size-box">
+        <label for="XXL">2XL</label>
+        <input type="number" id="XXL" min="0" value="0">
+      </div>
+      <div class="size-box">
+        <label for="XXXL">3XL</label>
+        <input type="number" id="XXXL" min="0" value="0">
+      </div>
+    </div>
+
+    <!-- Live totals -->
+    <p class="total">Total Shirts: <span id="totalQty">0</span></p>
+
+    <!-- Confirmation summary -->
+    <div class="summary" aria-live="polite">
+      <header>Review Your Order</header>
+      <div class="content">
+        <div class="grid">
+          <div>S:</div><div class="right"><span id="sumS">0</span></div>
+          <div>M:</div><div class="right"><span id="sumM">0</span></div>
+          <div>L:</div><div class="right"><span id="sumL">0</span></div>
+          <div>XL:</div><div class="right"><span id="sumXL">0</span></div>
+          <div>2XL:</div><div class="right"><span id="sumXXL">0</span></div>
+          <div>3XL:</div><div class="right"><span id="sumXXXL">0</span></div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="grid">
+          <div><strong>Total Shirts</strong></div>
+          <div class="right"><strong id="sumTotal">0</strong></div>
+
+          <div class="muted">Price per shirt</div>
+          <div class="right muted money">$30.00</div>
+
+          <div><strong>Order Total</strong></div>
+          <div class="right money"><strong id="sumCost">$0.00</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button type="submit" class="primary">Confirm & Submit</button>
+      <a href="order.html" class="btn">View Orders</a>
+    </div>
+  </form>
+</div>
+
+<script>
+const STORAGE_KEY="tshirt_orders_v1";
+const PRICE_PER_SHIRT = 30;
+
+function getOrders(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
+function saveOrders(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+function fmtMoney(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",minimumFractionDigits:2}); }
+
+function readQty(id){ return Math.max(0, parseInt(document.getElementById(id).value || "0", 10)); }
+
+function updateTotals(){
+  const S = readQty('S'), M = readQty('M'), L = readQty('L'), XL = readQty('XL'), XXL = readQty('XXL'), XXXL = readQty('XXXL');
+  const total = S + M + L + XL + XXL + XXXL;
+  const cost = total * PRICE_PER_SHIRT;
+
+  // top-line total
+  document.getElementById('totalQty').textContent = total;
+
+  // summary per-size
+  document.getElementById('sumS').textContent = S;
+  document.getElementById('sumM').textContent = M;
+  document.getElementById('sumL').textContent = L;
+  document.getElementById('sumXL').textContent = XL;
+  document.getElementById('sumXXL').textContent = XXL;
+  document.getElementById('sumXXXL').textContent = XXXL;
+
+  // summary totals
+  document.getElementById('sumTotal').textContent = total;
+  document.getElementById('sumCost').textContent = fmtMoney(cost);
+}
+
+function serializeForm(){
+  const S = readQty('S'), M = readQty('M'), L = readQty('L'), XL = readQty('XL'), XXL = readQty('XXL'), XXXL = readQty('XXXL');
+  const total = S + M + L + XL + XXL + XXXL;
+  const total_cost = total * PRICE_PER_SHIRT;
+
+  return {
+    timestamp: new Date().toISOString(),
+    coordinator: document.getElementById('coordinator').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    state: document.getElementById('state').value.trim(),
+    address: document.getElementById('address').value.trim(),
+    S, M, L, XL, XXL, XXXL,
+    total,
+    price_per_shirt: PRICE_PER_SHIRT,
+    total_cost
+  };
+}
+
+document.getElementById('orderForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  // simple required checks
+  if(!coordinator.value.trim() || !phone.value.trim() || !state.value.trim() || !address.value.trim()){
+    alert("Please complete all required fields.");
+    return;
+  }
+  const rec = serializeForm();
+  const orders = getOrders();
+  orders.push(rec);
+  saveOrders(orders);
+  alert(`✅ Order saved! Total shirts: ${rec.total} • Total: ${rec.total_cost.toLocaleString(undefined,{style:"currency",currency:"USD"})}`);
+  e.target.reset();
+  updateTotals();
+});
+
+// initialize summary on load
+updateTotals();
+</script>
+</body>
+</html>
