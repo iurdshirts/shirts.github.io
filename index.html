@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>IURD Shirts – Order Form</title>
+<title>IURD Camisetas – Formulario de Pedido</title>
 <style>
   body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#f6f7f9;color:#222}
   .wrap{max-width:760px;margin:2rem auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
@@ -11,7 +11,7 @@
   label{display:block;margin-top:1rem;font-weight:600}
   input,select{width:100%;padding:.6rem;margin-top:.3rem;border:1px solid #ccc;border-radius:6px;font-size:1rem}
   
-  /* single column layout for shirt sizes */
+  /* 1 columna para tallas */
   .sizes{
     display:flex;
     flex-direction:column;
@@ -56,18 +56,18 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>IURD T-Shirt Order Form</h1>
+  <h1>Formulario de Pedido – Camisetas IURD</h1>
 
   <form id="orderForm" oninput="updateTotals()">
-    <label for="coordinator">Name of Coordinator</label>
-    <input type="text" id="coordinator" placeholder="John Doe" required>
+    <label for="coordinator">Nombre del coordinador</label>
+    <input type="text" id="coordinator" placeholder="Juan Pérez" required>
 
-    <label for="phone">Phone Number</label>
+    <label for="phone">Número de teléfono</label>
     <input type="tel" id="phone" placeholder="(555) 555-5555" required>
 
-    <label for="state">Select Your State</label>
+    <label for="state">Seleccione su estado</label>
     <select id="state" required>
-      <option value="">Choose…</option>
+      <option value="">Elija…</option>
       <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
       <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
       <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
@@ -83,23 +83,23 @@
       <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
     </select>
 
-    <label for="address">Address of Delivery</label>
-    <input type="text" id="address" placeholder="123 Main St, City, State ZIP" required>
+    <label for="address">Dirección de entrega</label>
+    <input type="text" id="address" placeholder="Calle 123, Ciudad, Estado, ZIP" required>
 
-    <label>Sizes (S–3XL) – Enter Quantity for Each</label>
+    <label>Tallas (S–3XL) – Ingrese la cantidad para cada una</label>
     <div class="sizes">
-      <div class="size-box"><label for="S">Small (S)</label><input type="number" id="S" min="0" value="0"></div>
-      <div class="size-box"><label for="M">Medium (M)</label><input type="number" id="M" min="0" value="0"></div>
-      <div class="size-box"><label for="L">Large (L)</label><input type="number" id="L" min="0" value="0"></div>
-      <div class="size-box"><label for="XL">Extra Large (XL)</label><input type="number" id="XL" min="0" value="0"></div>
+      <div class="size-box"><label for="S">Chica (S)</label><input type="number" id="S" min="0" value="0"></div>
+      <div class="size-box"><label for="M">Mediana (M)</label><input type="number" id="M" min="0" value="0"></div>
+      <div class="size-box"><label for="L">Grande (L)</label><input type="number" id="L" min="0" value="0"></div>
+      <div class="size-box"><label for="XL">Extra grande (XL)</label><input type="number" id="XL" min="0" value="0"></div>
       <div class="size-box"><label for="XXL">2XL</label><input type="number" id="XXL" min="0" value="0"></div>
       <div class="size-box"><label for="XXXL">3XL</label><input type="number" id="XXXL" min="0" value="0"></div>
     </div>
 
-    <p class="total">Total Shirts: <span id="totalQty">0</span></p>
+    <p class="total">Camisetas totales: <span id="totalQty">0</span></p>
 
     <div class="summary" aria-live="polite">
-      <header>Review Your Order</header>
+      <header>Revise su pedido</header>
       <div class="content">
         <div class="grid">
           <div>S:</div><div class="right"><span id="sumS">0</span></div>
@@ -111,21 +111,21 @@
         </div>
         <div class="hr"></div>
         <div class="grid">
-          <div><strong>Total Shirts</strong></div><div class="right"><strong id="sumTotal">0</strong></div>
-          <div class="muted">Price per shirt</div><div class="right muted money">$30.00</div>
-          <div><strong>Order Total</strong></div><div class="right money"><strong id="sumCost">$0.00</strong></div>
+          <div><strong>Camisetas totales</strong></div><div class="right"><strong id="sumTotal">0</strong></div>
+          <div class="muted">Precio por camiseta</div><div class="right muted money">$30.00</div>
+          <div><strong>Total del pedido</strong></div><div class="right money"><strong id="sumCost">$0.00</strong></div>
         </div>
       </div>
     </div>
 
     <div class="note">
-      💳 Please send the total (including the total number of shirts) via Zelle to  
+      💳 Por favor envíe el total (incluyendo el número total de camisetas) por Zelle al  
       <strong>+1 (424) 223-1211</strong>.
     </div>
 
     <div class="actions">
-      <button type="submit" class="primary">Confirm & Submit</button>
-      <a href="order.html" class="btn">View Orders</a>
+      <button type="submit" class="primary">Confirmar y enviar</button>
+      <a href="order.html" class="btn">Ver pedidos</a>
     </div>
   </form>
 </div>
@@ -173,14 +173,14 @@ function serializeForm(){
 document.getElementById('orderForm').addEventListener('submit', e=>{
   e.preventDefault();
   if(!coordinator.value.trim() || !phone.value.trim() || !state.value.trim() || !address.value.trim()){
-    alert("Please complete all required fields.");
+    alert("Por favor complete todos los campos obligatorios.");
     return;
   }
   const rec = serializeForm();
   const orders = getOrders();
   orders.push(rec);
   saveOrders(orders);
-  alert(`✅ Order saved! Total shirts: ${rec.total} • Total: ${rec.total_cost.toLocaleString(undefined,{style:"currency",currency:"USD"})}`);
+  alert(`✅ ¡Pedido guardado! Camisetas totales: ${rec.total} • Total: ${rec.total_cost.toLocaleString(undefined,{style:"currency",currency:"USD"})}`);
   e.target.reset();
   updateTotals();
 });
