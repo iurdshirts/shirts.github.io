@@ -12,16 +12,10 @@
   html,body{height:100%}
   body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
   .wrap{
-    max-width:1200px; /* wider so it breathes */
-    margin:1rem auto;
-    background:var(--card);
-    padding:1rem 1rem 1.25rem;
-    border-radius:12px;
-    box-shadow:0 4px 20px rgba(0,0,0,.08);
+    max-width:1200px;margin:1rem auto;background:var(--card);
+    padding:1rem 1rem 1.25rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.08);
   }
   h1{margin:.25rem 0 1rem;text-align:center;font-size:1.4rem}
-
-  /* Controls / gate */
   .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:.75rem}
   .row.left{justify-content:flex-start}
   input[type="password"], input[type="text"]{
@@ -31,27 +25,12 @@
     padding:.6rem .9rem;border-radius:10px;border:0;background:var(--btn);color:#fff;cursor:pointer;font-size:.95rem
   }
   button.secondary{background:var(--btn-ghost);color:var(--btn-ghost-fg);border:1px solid #d8dee6}
-
   .muted{color:var(--muted)}
   .hidden{display:none}
-
-  /* Table container: scrolls horizontally if needed */
-  .table-wrap{
-    overflow:auto; /* key to avoid clipping */
-    border:1px solid var(--line);
-    border-radius:10px;
-  }
-
+  .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
   table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
-  th,td{
-    padding:.6rem .6rem;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:top
-  }
-  thead th{
-    position:sticky; top:0; z-index:1;
-    background:#f9fafb; border-bottom:1px solid var(--line);
-  }
-
-  /* Column sizing + wrapping */
+  th,td{padding:.6rem .6rem;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:top}
+  thead th{position:sticky;top:0;z-index:1;background:#f9fafb;border-bottom:1px solid var(--line)}
   th:nth-child(1), td:nth-child(1){width:48px}
   th:nth-child(2), td:nth-child(2){width:160px}
   th:nth-child(3), td:nth-child(3){width:160px}
@@ -63,22 +42,17 @@
   th:nth-child(9),td:nth-child(9),
   th:nth-child(10),td:nth-child(10),
   th:nth-child(11),td:nth-child(11),
-  th:nth-child(12),td:nth-child(12){width:64px; text-align:right}
-  th:nth-child(13),td:nth-child(13){width:76px; text-align:right}
-  th:nth-child(14),td:nth-child(14){width:76px; text-align:right}
-  th:nth-child(15),td:nth-child(15){width:92px; text-align:right}
+  th:nth-child(12),td:nth-child(12){width:64px;text-align:right}
+  th:nth-child(13),td:nth-child(13){width:76px;text-align:right}
+  th:nth-child(14),td:nth-child(14){width:76px;text-align:right}
+  th:nth-child(15),td:nth-child(15){width:92px;text-align:right}
   th:nth-child(16),td:nth-child(16),
-  th:nth-child(17),td:nth-child(17){width:110px; text-align:center}
-  th:nth-child(18),td:nth-child(18){width:100px; text-align:center}
-
+  th:nth-child(17),td:nth-child(17){width:110px;text-align:center}
+  th:nth-child(18),td:nth-child(18){width:100px;text-align:center}
   td{word-break:break-word}
   td.num{font-variant-numeric:tabular-nums}
   td input[type="checkbox"]{transform:scale(1.1)}
-
-  /* Buttons in table */
   .danger{background:#e11d48;color:#fff;border:0;padding:.45rem .7rem;border-radius:8px}
-
-  /* Small screens */
   @media (max-width: 700px){
     .wrap{margin:.5rem;border-radius:10px;padding:.75rem}
     h1{font-size:1.1rem}
@@ -91,11 +65,10 @@
 <div class="wrap">
   <h1>Pedidos – Panel</h1>
 
-  <!-- Gate: require password -->
+  <!-- Password gate (client-side only) -->
   <div id="gate" class="row left">
-    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)" />
+    <input id="passwordInput" type="password" placeholder="Contraseña" />
     <button id="unlock">Entrar</button>
-    <span class="muted">La contraseña por defecto es <code>password</code></span>
   </div>
 
   <div id="panel" class="hidden">
@@ -135,7 +108,12 @@
 /* --- Config --- */
 const API_BASE = "https://api.salcedo.app";
 const ORDERS_URL = API_BASE + "/orders";
-const DEFAULT_PASSWORD = "password"; // change here when you change .env on server
+
+/* Keep the server API key exactly as before (unchanged on backend) */
+const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb";
+
+/* Client-side password gate only (does NOT change server key) */
+const GATE_PASSWORD = "password"; // change this anytime for the page gate
 const LS_KEY = "iurd_orders_password";
 
 /* --- Auth (password gate) --- */
@@ -149,7 +127,7 @@ function setUI(authed){
 async function unlock(){
   const pw = document.getElementById('passwordInput').value.trim();
   if(!pw){ alert("Ingresa la contraseña."); return; }
-  if(pw === DEFAULT_PASSWORD){
+  if(pw === GATE_PASSWORD){
     setPassword(pw);
     setUI(true);
     await loadTable();
@@ -162,19 +140,19 @@ function lock(){ clearPassword(); setUI(false); document.getElementById('passwor
 document.getElementById('unlock').addEventListener('click', unlock);
 document.getElementById('lock').addEventListener('click', lock);
 
-/* --- API helpers --- */
+/* --- API helpers (always send API_KEY header) --- */
 function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
 function esc(s){ return String(s??"").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m])); }
 
 async function apiGetOrders(){
-  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": DEFAULT_PASSWORD }});
+  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": API_KEY }});
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 async function apiPatchRow(row_id, patch){
   const res = await fetch(`${ORDERS_URL}/${row_id}`, {
     method: "PATCH",
-    headers: { "X-API-Key": DEFAULT_PASSWORD, "Content-Type":"application/json" },
+    headers: { "X-API-Key": API_KEY, "Content-Type":"application/json" },
     body: JSON.stringify(patch)
   });
   if(!res.ok) throw new Error(await res.text());
@@ -183,7 +161,7 @@ async function apiPatchRow(row_id, patch){
 async function apiDeleteRow(row_id){
   const res = await fetch(`${ORDERS_URL}/${row_id}`, {
     method: "DELETE",
-    headers: { "X-API-Key": DEFAULT_PASSWORD }
+    headers: { "X-API-Key": API_KEY }
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
@@ -260,6 +238,14 @@ document.querySelector("#tbl").addEventListener("click", async (e)=>{
   try{ await apiDeleteRow(row_id); tr.remove(); }
   catch{ alert("No se pudo eliminar la fila."); }
 });
+
+/* Optional: remember successful unlock across reloads */
+(function tryAutoUnlock(){
+  if(getPassword() === GATE_PASSWORD){
+    setUI(true);
+    loadTable().catch(()=>{}); // noop on fail
+  }
+})();
 </script>
 </body>
 </html>
