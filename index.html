@@ -3,40 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>IURD Camisetas – Formulario de Pedido</title>
+<title>IURD Camisas – Formulario de Pedido</title>
 <style>
   body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#f6f7f9;color:#222}
   .wrap{max-width:760px;margin:2rem auto;background:#fff;padding:2rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
   h1{margin-top:0;text-align:center}
   label{display:block;margin-top:1rem;font-weight:600}
   input,select{width:100%;padding:.6rem;margin-top:.3rem;border:1px solid #ccc;border-radius:6px;font-size:1rem}
-  
-  /* 1 columna para tallas */
-  .sizes{
-    display:flex;
-    flex-direction:column;
-    gap:.75rem;
-    margin-top:.75rem;
-  }
-  .size-box{
-    border:1px solid #ddd;
-    border-radius:8px;
-    padding:.75rem;
-    background:#fafafa;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-  .size-box label{
-    font-weight:600;
-    font-size:1rem;
-    margin:0;
-  }
-  .size-box input{
-    width:80px;
-    text-align:center;
-  }
-
+  .sizes{display:flex;flex-direction:column;gap:.75rem;margin-top:.75rem}
+  .size-box{border:1px solid #ddd;border-radius:8px;padding:.75rem;background:#fafafa;display:flex;justify-content:space-between;align-items:center}
+  .size-box label{font-weight:600;font-size:1rem;margin:0}
+  .size-box input{width:80px;text-align:center}
   .total{margin-top:1.25rem;font-size:1.1rem;font-weight:700;text-align:right}
   .summary{margin-top:1.25rem;border:1px solid #e5e7eb;border-radius:10px;background:#f9fafb}
   .summary header{padding:.75rem 1rem;border-bottom:1px solid #e5e7eb;font-weight:700}
@@ -45,27 +22,28 @@
   .muted{color:#6b7280}
   .hr{height:1px;background:#e5e7eb;margin:.75rem 0}
   .actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.25rem}
-  button{flex:1 1 100%;padding:.9rem 1rem;border-radius:10px;text-decoration:none;text-align:center;cursor:pointer;background:#0a7cff;color:#fff;border:0}
+  button{flex:1 1 220px;padding:.9rem 1rem;border-radius:10px;text-decoration:none;text-align:center;cursor:pointer;background:#0a7cff;color:#fff;border:0}
   button:hover{filter:brightness(0.95)}
-  .right{text-align:right}
-  .money{font-variant-numeric:tabular-nums}
   .note{margin-top:1.5rem;padding:1rem;border-left:4px solid #0a7cff;background:#f0f7ff;font-size:1rem;line-height:1.4}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Formulario de Pedido – Camisetas IURD</h1>
+  <h1>Formulario de Pedido – Camisas IURD</h1>
 
-  <form id="orderForm" oninput="updateTotals()">
-    <label for="coordinator">Nombre del coordinador</label>
+  <form id="orderForm">
+    <label for="coordinator">Nombre del Coordinador</label>
     <input type="text" id="coordinator" placeholder="Juan Pérez" required>
 
-    <label for="phone">Número de teléfono</label>
+    <label for="phone">Número de Teléfono</label>
     <input type="tel" id="phone" placeholder="(555) 555-5555" required>
 
-    <label for="state">Seleccione su estado</label>
+    <label for="address">Dirección de Entrega</label>
+    <input type="text" id="address" placeholder="Calle, Ciudad, Estado, Código Postal" required>
+
+    <label for="state">Selecciona tu Estado</label>
     <select id="state" required>
-      <option value="">Elija…</option>
+      <option value="">Elige...</option>
       <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
       <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
       <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
@@ -81,23 +59,20 @@
       <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
     </select>
 
-    <label for="address">Dirección de entrega</label>
-    <input type="text" id="address" placeholder="Calle 123, Ciudad, Estado, ZIP" required>
-
-    <label>Tallas (S–3XL) – Ingrese la cantidad para cada una</label>
+    <label>Tamaños (S–3XL) – Ingresa la cantidad para cada uno</label>
     <div class="sizes">
-      <div class="size-box"><label for="S">Chica (S)</label><input type="number" id="S" min="0" value="0"></div>
+      <div class="size-box"><label for="S">Pequeña (S)</label><input type="number" id="S" min="0" value="0"></div>
       <div class="size-box"><label for="M">Mediana (M)</label><input type="number" id="M" min="0" value="0"></div>
       <div class="size-box"><label for="L">Grande (L)</label><input type="number" id="L" min="0" value="0"></div>
-      <div class="size-box"><label for="XL">Extra grande (XL)</label><input type="number" id="XL" min="0" value="0"></div>
+      <div class="size-box"><label for="XL">Extra Grande (XL)</label><input type="number" id="XL" min="0" value="0"></div>
       <div class="size-box"><label for="XXL">2XL</label><input type="number" id="XXL" min="0" value="0"></div>
       <div class="size-box"><label for="XXXL">3XL</label><input type="number" id="XXXL" min="0" value="0"></div>
     </div>
 
-    <p class="total">Camisetas totales: <span id="totalQty">0</span></p>
+    <p class="total">Total de Camisas: <span id="totalQty">0</span></p>
 
-    <div class="summary" aria-live="polite">
-      <header>Revise su pedido</header>
+    <div class="summary">
+      <header>Revisa tu Pedido</header>
       <div class="content">
         <div class="grid">
           <div>S:</div><div class="right"><span id="sumS">0</span></div>
@@ -109,87 +84,103 @@
         </div>
         <div class="hr"></div>
         <div class="grid">
-          <div><strong>Camisetas totales</strong></div><div class="right"><strong id="sumTotal">0</strong></div>
-          <div class="muted">Precio por camiseta</div><div class="right muted money">$30.00</div>
-          <div><strong>Total del pedido</strong></div><div class="right money"><strong id="sumCost">$0.00</strong></div>
+          <div><strong>Total de Camisas</strong></div><div class="right"><strong id="sumTotal">0</strong></div>
+          <div class="muted">Precio por camisa</div><div class="right muted money">$30.00</div>
+          <div><strong>Total del Pedido</strong></div><div class="right money"><strong id="sumCost">$0.00</strong></div>
         </div>
       </div>
     </div>
 
-    <div class="note" id="zelleNote">
-      💳 Por favor envíe el total (incluyendo el número total de camisetas) por Zelle al  
+    <div class="note">
+      💳 Por favor envía el total (incluyendo el número total de camisas) por Zelle al  
       <strong>+1 (424) 223-1211</strong>.
     </div>
 
     <div class="actions">
-      <button type="submit" class="primary">Confirmar y enviar</button>
+      <button type="submit" class="primary">Confirmar y Enviar</button>
     </div>
   </form>
 </div>
 
 <script>
-const STORAGE_KEY="tshirt_orders_v1";
+const API_URL = "https://api.salcedo.app/submit";
+const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb";
 const PRICE_PER_SHIRT = 30;
 
-function getOrders(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
-function saveOrders(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
-function fmtMoney(n){ return n.toLocaleString("es-US",{style:"currency",currency:"USD",minimumFractionDigits:2}); }
+function fmtMoney(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD"}); }
 function readQty(id){ return Math.max(0, parseInt(document.getElementById(id).value || "0", 10)); }
 
 function updateTotals(){
   const S = readQty('S'), M = readQty('M'), L = readQty('L'), XL = readQty('XL'), XXL = readQty('XXL'), XXXL = readQty('XXXL');
   const total = S + M + L + XL + XXL + XXXL;
   const cost = total * PRICE_PER_SHIRT;
-  document.getElementById('totalQty').textContent = total;
-  document.getElementById('sumS').textContent = S;
-  document.getElementById('sumM').textContent = M;
-  document.getElementById('sumL').textContent = L;
-  document.getElementById('sumXL').textContent = XL;
-  document.getElementById('sumXXL').textContent = XXL;
-  document.getElementById('sumXXXL').textContent = XXXL;
-  document.getElementById('sumTotal').textContent = total;
-  document.getElementById('sumCost').textContent = fmtMoney(cost);
+  totalQty.textContent = total;
+  sumS.textContent = S; sumM.textContent = M; sumL.textContent = L;
+  sumXL.textContent = XL; sumXXL.textContent = XXL; sumXXXL.textContent = XXXL;
+  sumTotal.textContent = total; sumCost.textContent = fmtMoney(cost);
+}
+updateTotals();
 
-  // actualizar nota de zelle dinámicamente
-  const zelleNote = document.getElementById('zelleNote');
-  if (total > 0) {
-    zelleNote.innerHTML = `💳 Por favor envíe el total de <strong>${total} camiseta${total>1?'s':''} (${fmtMoney(cost)})</strong> por Zelle al <strong>+1 (424) 223-1211</strong>.`;
-  } else {
-    zelleNote.innerHTML = `💳 Por favor envíe el total (incluyendo el número total de camisetas) por Zelle al <strong>+1 (424) 223-1211</strong>.`;
+async function postOrder(payload){
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": API_KEY
+    },
+    body: JSON.stringify(payload),
+    mode: "cors",
+    credentials: "omit"
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(()=> "");
+    throw new Error(txt || `HTTP ${res.status}`);
   }
+  return res.json();
 }
 
-function serializeForm(){
+function buildPayload(){
   const S = readQty('S'), M = readQty('M'), L = readQty('L'), XL = readQty('XL'), XXL = readQty('XXL'), XXXL = readQty('XXXL');
   const total = S + M + L + XL + XXL + XXXL;
-  const total_cost = total * PRICE_PER_SHIRT;
   return {
-    timestamp: new Date().toISOString(),
     coordinator: coordinator.value.trim(),
     phone: phone.value.trim(),
     state: state.value.trim(),
     address: address.value.trim(),
-    S,M,L,XL,XXL,XXXL,total,
+    S, M, L, XL, XXL, XXXL,
+    total,
     price_per_shirt: PRICE_PER_SHIRT,
-    total_cost
+    total_cost: total * PRICE_PER_SHIRT
   };
 }
 
-document.getElementById('orderForm').addEventListener('submit', e=>{
+orderForm.addEventListener('input', updateTotals);
+
+orderForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
+
   if(!coordinator.value.trim() || !phone.value.trim() || !state.value.trim() || !address.value.trim()){
-    alert("Por favor complete todos los campos obligatorios.");
+    alert("Por favor completa todos los campos requeridos.");
     return;
   }
-  const rec = serializeForm();
-  const orders = getOrders();
-  orders.push(rec);
-  saveOrders(orders);
-  alert(`✅ ¡Pedido guardado! Camisetas totales: ${rec.total} • Total: ${fmtMoney(rec.total_cost)}`);
-  e.target.reset();
-  updateTotals();
+
+  const btn = orderForm.querySelector('button[type=\"submit\"]');
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = "Enviando…";
+
+  try {
+    const payload = buildPayload();
+    const resp = await postOrder(payload);
+    alert(`✅ ¡Orden guardada!\nCamisas: ${payload.total}\nTotal: ${fmtMoney(payload.total_cost)}\n\n💳 Envía el pago (incluye el total de camisas) por Zelle al +1 (424) 223-1211.`);
+    orderForm.reset();
+    updateTotals();
+  } catch (err){
+    console.error(err);
+    alert("❌ No se pudo enviar la orden. Revisa tu conexión e inténtalo de nuevo.");
+  } finally {
+    btn.disabled = false; btn.textContent = originalText;
+  }
 });
-updateTotals();
 </script>
 </body>
 </html>
