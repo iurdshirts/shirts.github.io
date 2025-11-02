@@ -2,52 +2,86 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pedidos – Panel (Tarjetas + Filtros)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pedidos – Panel (Lectura Fácil)</title>
 <style>
   :root{
-    --bg:#f6f7f9; --fg:#222; --muted:#6b7280; --line:#e5e7eb;
+    --bg:#f5f7fb; --fg:#111827; --muted:#6b7280; --line:#e5e7eb;
     --blue:#0a7cff; --ghost:#eef2f7; --ghostfg:#0a2850;
     --red:#ef4444; --orange:#fb923c; --green:#22c55e;
-    --redbg:#fee2e2; --orangebg:#fff7ed; --greenbg:#dcfce7;
+    --redbg:#fff1f2; --orangebg:#fff7ed; --greenbg:#ecfdf5;
   }
-  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:var(--bg);color:var(--fg)}
-  .wrap{max-width:1200px;margin:1rem auto;padding:1rem}
-  h1{text-align:center;margin:1rem 0}
-  .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:1rem}
-  input[type="password"], input[type="text"], select{
-    padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;font-size:.95rem
+  /* Layout */
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:760px;margin:1rem auto;padding:1rem}
+  h1{font-size:1.6rem;margin:.5rem 0 1rem;text-align:center}
+
+  /* Inputs / buttons */
+  input[type="password"],input[type="text"],select{
+    padding:.7rem .8rem;border:1px solid #cbd5e1;border-radius:12px;font-size:1rem;background:#fff
   }
-  button{padding:.6rem .9rem;border-radius:10px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-size:.95rem}
+  button{padding:.75rem 1rem;border-radius:12px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-size:1rem}
   button.secondary{background:var(--ghost);color:var(--ghostfg);border:1px solid #d8dee6}
   .muted{color:var(--muted)}
   .hidden{display:none}
 
-  .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:space-between;align-items:center;margin:.75rem 0}
-  .filters{display:flex;gap:.5rem;flex-wrap:wrap}
-  .stats{display:flex;gap:.6rem;flex-wrap:wrap}
-  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:.5rem .75rem;font-size:.9rem}
+  /* Toolbar + stats */
+  .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center;margin:0 0 .75rem}
+  .filters{display:flex;flex-wrap:wrap;gap:.6rem}
+  .stats{display:flex;flex-wrap:wrap;gap:.6rem;margin:.5rem 0 1rem}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem .8rem;font-size:.95rem}
   .stat b{font-variant-numeric:tabular-nums}
 
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:1rem}
+  /* One-column card list */
+  .cards{display:flex;flex-direction:column;gap:1rem}
   .card{
-    border-radius:12px;box-shadow:0 2px 6px rgba(0,0,0,.08);
-    padding:1rem;display:flex;flex-direction:column;gap:.5rem;
-    transition:background .2s,border-left .2s;
-    border-left:5px solid var(--blue); background:#fff;
+    background:#fff;border-radius:16px;border:1px solid var(--line);box-shadow:0 6px 16px rgba(0,0,0,.06);
+    padding:1rem 1rem 1.1rem;transition:background .2s,border-left .2s; border-left:6px solid var(--blue)
   }
   .status-red{background:var(--redbg);border-left-color:var(--red)}
   .status-orange{background:var(--orangebg);border-left-color:var(--orange)}
   .status-green{background:var(--greenbg);border-left-color:var(--green)}
 
-  .card h2{margin:0 0 .3rem;font-size:1.1rem;color:#0a2850}
-  .card p{margin:.2rem 0;font-size:.9rem;line-height:1.4}
-  .grid{display:grid;grid-template-columns:auto auto;gap:.2rem .8rem;font-size:.9rem}
-  .total{font-weight:700;text-align:right;margin-top:.5rem}
-  .actions{display:flex;gap:.5rem;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:.5rem}
-  .btn{padding:.4rem .7rem;border-radius:8px;border:0;font-size:.85rem;cursor:pointer}
-  .delete{background:var(--red);color:#fff}
+  .head{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;margin-bottom:.2rem}
+  .order-id{font-size:1.15rem;font-weight:800;letter-spacing:.2px}
+  .order-date{font-size:.95rem;color:var(--muted)}
+
+  .info{display:grid;grid-template-columns:1fr;gap:.25rem;margin:.4rem 0 .2rem}
+  .line{font-size:1.05rem}
+  .label{color:var(--muted);margin-right:.35rem}
+
+  .sizes{display:grid;grid-template-columns:repeat(6, minmax(0,1fr));gap:.4rem;margin:.5rem 0}
+  .sizes .chip{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:.4rem .5rem;text-align:center;
+    font-size:.95rem
+  }
+  .total{display:flex;justify-content:flex-end;margin-top:.2rem;font-size:1.15rem;font-weight:800}
+
+  .actions{
+    display:flex;flex-wrap:wrap;gap:.5rem;justify-content:space-between;align-items:center;margin-top:.9rem
+  }
+  .toggles{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
   .check{accent-color:var(--blue);transform:scale(1.2)}
+  .btns{display:flex;gap:.5rem}
+  .btn-delete{background:var(--red)}
+  .btn-edit{background:#0ea5e9}
+
+  /* Gate row */
+  .gate{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:1rem}
+
+  /* Modal (edit) */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+  .modal{max-width:720px;width:100%;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;border:1px solid var(--line)}
+  .modal header{padding:1rem 1.25rem;border-bottom:1px solid var(--line);font-weight:800;font-size:1.15rem}
+  .modal .content{padding:1rem 1.25rem;display:grid;gap:.9rem}
+  .modal .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .modal label{font-size:.95rem;font-weight:700}
+  .modal input,.modal select{width:100%;padding:.6rem .7rem;border:1px solid #cbd5e1;border-radius:10px;font-size:1rem}
+  .modal .sizes{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+  .modal .sizebox{display:flex;gap:.45rem;align-items:center}
+  .modal .sizebox input{width:90px;text-align:center}
+  .modal footer{padding:1rem 1.25rem;border-top:1px solid var(--line);display:flex;gap:.6rem;justify-content:flex-end}
+  @media (max-width:720px){ .modal .grid-2{grid-template-columns:1fr} .modal .sizes{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -55,14 +89,14 @@
   <h1>Pedidos – Panel</h1>
 
   <!-- Password Gate -->
-  <div id="gate" class="row">
-    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)">
+  <div id="gate" class="gate">
+    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)" />
     <button id="unlock">Entrar</button>
     <span class="muted">Contraseña por defecto: <code>password</code></span>
   </div>
 
   <div id="panel" class="hidden">
-    <!-- Toolbar: filters + actions + summary -->
+    <!-- Toolbar -->
     <div class="toolbar">
       <div class="filters">
         <select id="filterPaid">
@@ -91,7 +125,7 @@
           <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
           <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
         </select>
-        <input id="searchCoord" type="text" placeholder="Buscar coordinador…">
+        <input id="searchCoord" type="text" placeholder="Buscar coordinador…" />
         <select id="sortBy">
           <option value="date_desc">Ordenar: Fecha ↓</option>
           <option value="date_asc">Fecha ↑</option>
@@ -107,7 +141,7 @@
         </select>
         <button id="clearFilters" class="secondary">Limpiar</button>
       </div>
-      <div class="row" style="gap:.5rem">
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
         <button id="reload" class="secondary">Recargar</button>
         <button id="export" class="secondary">Exportar CSV</button>
         <button id="lock" class="secondary">Bloquear</button>
@@ -124,247 +158,323 @@
       <div class="stat">Total $: <b id="sumAmount">$0.00</b></div>
     </div>
 
+    <!-- Cards (single column) -->
     <div id="cards" class="cards"></div>
+  </div>
+</div>
+
+<!-- Modal Editor -->
+<div id="modalBackdrop" class="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <header id="editTitle">Editar pedido</header>
+    <div class="content">
+      <div class="grid-2">
+        <div>
+          <label for="edCoordinator">Coordinador</label>
+          <input id="edCoordinator" type="text" />
+        </div>
+        <div>
+          <label for="edPhone">Teléfono</label>
+          <input id="edPhone" type="text" />
+        </div>
+        <div>
+          <label for="edState">Estado</label>
+          <select id="edState">
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+            <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+            <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+            <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+            <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+            <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+            <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+            <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+            <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+            <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+            <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+            <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+            <option>Wisconsin</option><option>Wyoming</option><option>Puerto Rico</option>
+          </select>
+        </div>
+        <div>
+          <label for="edAddress">Dirección</label>
+          <input id="edAddress" type="text" />
+        </div>
+      </div>
+
+      <div>
+        <label>Tallas (cantidades)</label>
+        <div class="sizes">
+          <div class="sizebox"><span>S</span><input id="edS" type="number" min="0" value="0"></div>
+          <div class="sizebox"><span>M</span><input id="edM" type="number" min="0" value="0"></div>
+          <div class="sizebox"><span>L</span><input id="edL" type="number" min="0" value="0"></div>
+          <div class="sizebox"><span>XL</span><input id="edXL" type="number" min="0" value="0"></div>
+          <div class="sizebox"><span>2XL</span><input id="edXXL" type="number" min="0" value="0"></div>
+          <div class="sizebox"><span>3XL</span><input id="edXXXL" type="number" min="0" value="0"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <label for="edPrice">Precio por camisa (USD)</label>
+          <input id="edPrice" type="number" min="0" step="0.01" />
+        </div>
+        <div>
+          <label>Total calculado</label>
+          <input id="edTotalCalc" type="text" disabled />
+        </div>
+      </div>
+    </div>
+    <footer>
+      <button id="btnCancel" class="secondary">Cancelar</button>
+      <button id="btnSave" class="secondary">Guardar</button>
+    </footer>
   </div>
 </div>
 
 <script>
 const API_BASE = "https://api.salcedo.app";
 const ORDERS_URL = API_BASE + "/orders";
-const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb"; // backend key unchanged
+const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb"; // igual que backend
 const GATE_PASSWORD = "password";
 const LS_KEY = "iurd_orders_password";
 
-let ALL_ORDERS = [];   // raw from API
-let VIEW_ORDERS = [];  // after filters/sort
+let ALL_ORDERS = [];
+let VIEW_ORDERS = [];
+let editingId = null;
 
-/* --- Auth --- */
-function getPassword(){ return localStorage.getItem(LS_KEY) || ""; }
-function setPassword(p){ localStorage.setItem(LS_KEY, p); }
-function clearPassword(){ localStorage.removeItem(LS_KEY); }
-function setUI(authed){ 
-  document.getElementById('gate').classList.toggle('hidden', authed);
-  document.getElementById('panel').classList.toggle('hidden', !authed);
-}
-document.getElementById('unlock').addEventListener('click', async ()=>{
-  const pw = document.getElementById('passwordInput').value.trim();
-  if(pw === GATE_PASSWORD){ setPassword(pw); setUI(true); await refresh(); }
-  else alert("Contraseña incorrecta.");
-});
-document.getElementById('lock').addEventListener('click', ()=>{ clearPassword(); setUI(false); });
+/* Utils */
+const money = n => Number(n||0).toLocaleString(undefined,{style:'currency',currency:'USD'});
+const norm  = s => String(s||"").toLowerCase();
+const statusClass = o => {
+  const paid = String(o.confirmed).toLowerCase()==="true";
+  const del  = String(o.delivered).toLowerCase()==="true";
+  if(paid && del) return "status-green";
+  if(paid && !del) return "status-orange";
+  return "status-red";
+};
 
-/* --- API --- */
+/* Gate */
+const getPw =()=>localStorage.getItem(LS_KEY)||"";
+const setPw =p=>localStorage.setItem(LS_KEY,p);
+const clrPw =()=>localStorage.removeItem(LS_KEY);
+const setUI = a => { gate.classList.toggle('hidden',a); panel.classList.toggle('hidden',!a); };
+unlock.onclick = async ()=>{ const pw = passwordInput.value.trim(); if(pw===GATE_PASSWORD){ setPw(pw); setUI(true); await refresh(); } else alert("Contraseña incorrecta."); };
+lock.onclick   = ()=>{ clrPw(); setUI(false); };
+
+/* API */
 async function apiGetOrders(){
-  const res = await fetch(ORDERS_URL,{headers:{"X-API-Key":API_KEY}});
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();
+  const r = await fetch(ORDERS_URL,{headers:{"X-API-Key":API_KEY}});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 async function apiPatchRow(id, patch){
-  const res = await fetch(`${ORDERS_URL}/${id}`,{
-    method:"PATCH",
-    headers:{"X-API-Key":API_KEY,"Content-Type":"application/json"},
-    body:JSON.stringify(patch)
-  });
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();
+  const r = await fetch(`${ORDERS_URL}/${id}`,{method:"PATCH",headers:{"X-API-Key":API_KEY,"Content-Type":"application/json"},body:JSON.stringify(patch)});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 async function apiDeleteRow(id){
-  const res = await fetch(`${ORDERS_URL}/${id}`,{
-    method:"DELETE",
-    headers:{"X-API-Key":API_KEY}
-  });
-  if(!res.ok) throw new Error(await res.text());
-  return res.json();
+  const r = await fetch(`${ORDERS_URL}/${id}`,{method:"DELETE",headers:{"X-API-Key":API_KEY}});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 
-/* --- Utilities --- */
-function statusClass(o){
-  const paid = String(o.confirmed).toLowerCase()==="true";
-  const delivered = String(o.delivered).toLowerCase()==="true";
-  if(paid && delivered) return "status-green";
-  if(paid && !delivered) return "status-orange";
-  return "status-red";
-}
-function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
-function normalize(s){ return String(s||"").toLowerCase(); }
-
-/* --- Render --- */
+/* Render one-column cards */
 function cardHtml(o){
   const paid = String(o.confirmed).toLowerCase()==="true";
-  const delivered = String(o.delivered).toLowerCase()==="true";
+  const del  = String(o.delivered).toLowerCase()==="true";
   return `
   <div class="card ${statusClass(o)}" data-id="${o.row_id}">
-    <h2>Pedido #${o.row_id}</h2>
-    <p><strong>Fecha:</strong> ${new Date(o.timestamp).toLocaleString()}</p>
-    <p><strong>Coordinador:</strong> ${o.coordinator}</p>
-    <p><strong>Teléfono:</strong> ${o.phone}</p>
-    <p><strong>Dirección:</strong> ${o.address}</p>
-    <p><strong>Estado:</strong> ${o.state}</p>
-    <div class="grid">
-      <div>S:</div><div>${o.S}</div>
-      <div>M:</div><div>${o.M}</div>
-      <div>L:</div><div>${o.L}</div>
-      <div>XL:</div><div>${o.XL}</div>
-      <div>2XL:</div><div>${o.XXL}</div>
-      <div>3XL:</div><div>${o.XXXL}</div>
+    <div class="head">
+      <div class="order-id">Pedido #${o.row_id}</div>
+      <div class="order-date">${new Date(o.timestamp).toLocaleString()}</div>
     </div>
-    <p class="total">Total camisas: ${o.total} – <strong>${money(o.total_cost)}</strong></p>
+
+    <div class="info">
+      <div class="line"><span class="label">Coordinador:</span> <strong>${o.coordinator}</strong></div>
+      <div class="line"><span class="label">Teléfono:</span> ${o.phone}</div>
+      <div class="line"><span class="label">Dirección:</span> ${o.address}</div>
+      <div class="line"><span class="label">Estado:</span> ${o.state}</div>
+    </div>
+
+    <div class="sizes">
+      <div class="chip">S: <b>${o.S}</b></div>
+      <div class="chip">M: <b>${o.M}</b></div>
+      <div class="chip">L: <b>${o.L}</b></div>
+      <div class="chip">XL: <b>${o.XL}</b></div>
+      <div class="chip">2XL: <b>${o.XXL}</b></div>
+      <div class="chip">3XL: <b>${o.XXXL}</b></div>
+    </div>
+
+    <div class="total">Total camisas: ${o.total} — <span>${money(o.total_cost)}</span></div>
+
     <div class="actions">
-      <div>
+      <div class="toggles">
         <label><input type="checkbox" class="check chk-confirm" ${paid?'checked':''}> Pagado</label>
-        &nbsp;&nbsp;
-        <label><input type="checkbox" class="check chk-deliver" ${delivered?'checked':''}> Entregado</label>
+        <label><input type="checkbox" class="check chk-deliver" ${del?'checked':''}> Entregado</label>
       </div>
-      <button class="btn delete">Eliminar</button>
+      <div class="btns">
+        <button class="btn-edit">Editar</button>
+        <button class="btn-delete">Eliminar</button>
+      </div>
     </div>
   </div>`;
 }
 
 function render(){
-  const container = document.getElementById("cards");
-  container.innerHTML = VIEW_ORDERS.map(cardHtml).join("");
+  cards.innerHTML = VIEW_ORDERS.map(cardHtml).join("");
 
-  // summary
   const totalOrders = VIEW_ORDERS.length;
-  const paidCount = VIEW_ORDERS.filter(o=>String(o.confirmed).toLowerCase()==="true").length;
-  const deliveredCount = VIEW_ORDERS.filter(o=>String(o.delivered).toLowerCase()==="true").length;
-  const toDeliver = paidCount - deliveredCount;
-  const totalShirts = VIEW_ORDERS.reduce((sum,o)=>sum + Number(o.total||0), 0);
-  const totalAmount = VIEW_ORDERS.reduce((sum,o)=>sum + Number(o.total_cost||0), 0);
+  const paidCount   = VIEW_ORDERS.filter(o=>String(o.confirmed).toLowerCase()==="true").length;
+  const delCount    = VIEW_ORDERS.filter(o=>String(o.delivered).toLowerCase()==="true").length;
+  const toDeliver   = Math.max(0, paidCount - delCount);
+  const tshirts     = VIEW_ORDERS.reduce((s,o)=>s+(+o.total||0),0);
+  const amount      = VIEW_ORDERS.reduce((s,o)=>s+(+o.total_cost||0),0);
 
-  document.getElementById("sumOrders").textContent = totalOrders;
-  document.getElementById("sumPaid").textContent = paidCount;
-  document.getElementById("sumDelivered").textContent = deliveredCount;
-  document.getElementById("sumToDeliver").textContent = Math.max(0,toDeliver);
-  document.getElementById("sumShirts").textContent = totalShirts;
-  document.getElementById("sumAmount").textContent = money(totalAmount);
+  sumOrders.textContent   = totalOrders;
+  sumPaid.textContent     = paidCount;
+  sumDelivered.textContent= delCount;
+  sumToDeliver.textContent= toDeliver;
+  sumShirts.textContent   = tshirts;
+  sumAmount.textContent   = money(amount);
 }
 
-/* --- Filters & sort --- */
+/* Filters / sort */
 function applyFilters(){
-  const paid = document.getElementById("filterPaid").value;          // all | paid | unpaid
-  const delivered = document.getElementById("filterDelivered").value;// all | delivered | undelivered
-  const state = document.getElementById("filterState").value.trim(); // "" or exact state
-  const q = normalize(document.getElementById("searchCoord").value);
-
-  let list = [...ALL_ORDERS];
-  list = list.filter(o=>{
+  const paid = filterPaid.value, delivered = filterDelivered.value, state = filterState.value.trim(), q = norm(searchCoord.value);
+  VIEW_ORDERS = ALL_ORDERS.filter(o=>{
     const isPaid = String(o.confirmed).toLowerCase()==="true";
-    const isDelivered = String(o.delivered).toLowerCase()==="true";
+    const isDel  = String(o.delivered).toLowerCase()==="true";
     if(paid==="paid" && !isPaid) return false;
     if(paid==="unpaid" && isPaid) return false;
-    if(delivered==="delivered" && !isDelivered) return false;
-    if(delivered==="undelivered" && isDelivered) return false;
+    if(delivered==="delivered" && !isDel) return false;
+    if(delivered==="undelivered" && isDel) return false;
     if(state && String(o.state)!==state) return false;
-    if(q && !normalize(o.coordinator).includes(q)) return false;
+    if(q && !norm(o.coordinator).includes(q)) return false;
     return true;
   });
-  VIEW_ORDERS = list;
 }
-
 function applySort(){
-  const sort = document.getElementById("sortBy").value;
-  const statusRank = o=>{
-    const paid = String(o.confirmed).toLowerCase()==="true";
-    const del = String(o.delivered).toLowerCase()==="true";
-    if(paid && del) return 0;     // best
-    if(paid && !del) return 1;
-    return 2;                     // worst
-  };
+  const sort = sortBy.value;
+  const rank = o => (String(o.confirmed).toLowerCase()==="true" ? (String(o.delivered).toLowerCase()==="true"?0:1) : 2);
   VIEW_ORDERS.sort((a,b)=>{
     switch(sort){
-      case "date_desc": return new Date(b.timestamp)-new Date(a.timestamp);
-      case "date_asc":  return new Date(a.timestamp)-new Date(b.timestamp);
-      case "total_desc": return (b.total|0)-(a.total|0);
-      case "total_asc":  return (a.total|0)-(b.total|0);
-      case "amount_desc": return (b.total_cost||0)-(a.total_cost||0);
-      case "amount_asc":  return (a.total_cost||0)-(b.total_cost||0);
-      case "coord_asc": return String(a.coordinator).localeCompare(String(b.coordinator));
-      case "coord_desc": return String(b.coordinator).localeCompare(String(a.coordinator));
-      case "state_asc": return String(a.state).localeCompare(String(b.state));
-      case "state_desc": return String(b.state).localeCompare(String(a.state));
-      case "status": return statusRank(a)-statusRank(b) || (new Date(b.timestamp)-new Date(a.timestamp));
+      case "date_desc":   return new Date(b.timestamp)-new Date(a.timestamp);
+      case "date_asc":    return new Date(a.timestamp)-new Date(b.timestamp);
+      case "total_desc":  return (+b.total||0)-(+a.total||0);
+      case "total_asc":   return (+a.total||0)-(+b.total||0);
+      case "amount_desc": return (+b.total_cost||0)-(+a.total_cost||0);
+      case "amount_asc":  return (+a.total_cost||0)-(+b.total_cost||0);
+      case "coord_asc":   return String(a.coordinator).localeCompare(String(b.coordinator));
+      case "coord_desc":  return String(b.coordinator).localeCompare(String(a.coordinator));
+      case "state_asc":   return String(a.state).localeCompare(String(b.state));
+      case "state_desc":  return String(b.state).localeCompare(String(a.state));
+      case "status":      return rank(a)-rank(b) || (new Date(b.timestamp)-new Date(a.timestamp));
       default: return 0;
     }
   });
 }
-
-function wireFilters(){
-  const ids = ["filterPaid","filterDelivered","filterState","searchCoord","sortBy"];
-  ids.forEach(id=> document.getElementById(id).addEventListener("input", ()=>{
-    applyFilters(); applySort(); render();
-  }));
-  document.getElementById("clearFilters").addEventListener("click", ()=>{
-    document.getElementById("filterPaid").value = "all";
-    document.getElementById("filterDelivered").value = "all";
-    document.getElementById("filterState").value = "";
-    document.getElementById("searchCoord").value = "";
-    document.getElementById("sortBy").value = "date_desc";
-    applyFilters(); applySort(); render();
-  });
-}
-
-/* --- Data flow --- */
-async function refresh(){
-  const data = await apiGetOrders();
-  ALL_ORDERS = data.orders || [];
+["filterPaid","filterDelivered","filterState","searchCoord","sortBy"].forEach(id=>{
+  document.getElementById(id).addEventListener("input", ()=>{ applyFilters(); applySort(); render(); });
+});
+clearFilters.onclick = ()=>{
+  filterPaid.value="all"; filterDelivered.value="all"; filterState.value="";
+  searchCoord.value=""; sortBy.value="date_desc";
   applyFilters(); applySort(); render();
-}
+};
 
-document.getElementById('reload').addEventListener('click', refresh);
+/* Data */
+async function refresh(){ const data = await apiGetOrders(); ALL_ORDERS = data.orders||[]; applyFilters(); applySort(); render(); }
+reload.onclick = refresh;
 
-/* Export CSV (current view) */
-document.getElementById('export').addEventListener('click', ()=>{
+/* Export CSV of current view */
+export.onclick = ()=>{
   const headers = ["#","Fecha","Coordinador","Teléfono","Estado","Dirección","S","M","L","XL","2XL","3XL","Total","$ c/u","Total $","Pagado","Entregado"];
   const rows = VIEW_ORDERS.map(o=>[
-    o.row_id, o.timestamp, o.coordinator, o.phone, o.state, o.address,
-    o.S, o.M, o.L, o.XL, o.XXL, o.XXXL, o.total, o.price_per_shirt, o.total_cost,
-    String(o.confirmed).toLowerCase()==="true", String(o.delivered).toLowerCase()==="true"
+    o.row_id,o.timestamp,o.coordinator,o.phone,o.state,o.address,
+    o.S,o.M,o.L,o.XL,o.XXL,o.XXXL,o.total,o.price_per_shirt,o.total_cost,
+    String(o.confirmed).toLowerCase()==="true",String(o.delivered).toLowerCase()==="true"
   ]);
-  const csv = [headers, ...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), {href:url, download:`orders_${Date.now()}.csv`});
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
-});
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv],{type:"text/csv"}); const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),{href:url,download:`orders_${Date.now()}.csv`});
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+};
 
-/* Card actions */
+/* Card actions (toggle, delete, edit) */
 document.addEventListener("change", async e=>{
   const card = e.target.closest(".card"); if(!card) return;
   const id = card.dataset.id;
   if(e.target.classList.contains("chk-confirm") || e.target.classList.contains("chk-deliver")){
-    const paid = e.target.classList.contains("chk-confirm") ? e.target.checked : card.querySelector(".chk-confirm").checked;
-    const delivered = e.target.classList.contains("chk-deliver") ? e.target.checked : card.querySelector(".chk-deliver").checked;
+    const paid = card.querySelector(".chk-confirm").checked;
+    const del  = card.querySelector(".chk-deliver").checked;
     try{
       if(e.target.classList.contains("chk-confirm")) await apiPatchRow(id,{confirmed:paid});
-      if(e.target.classList.contains("chk-deliver")) await apiPatchRow(id,{delivered:delivered});
-      // Reflect in local data
+      if(e.target.classList.contains("chk-deliver")) await apiPatchRow(id,{delivered:del});
       const idx = ALL_ORDERS.findIndex(o=>String(o.row_id)===String(id));
-      if(idx>=0){ ALL_ORDERS[idx].confirmed = paid; ALL_ORDERS[idx].delivered = delivered; }
+      if(idx>=0){ ALL_ORDERS[idx].confirmed = paid; ALL_ORDERS[idx].delivered = del; }
       applyFilters(); applySort(); render();
-    }catch{
-      alert("Error al actualizar estado.");
-      e.target.checked = !e.target.checked;
-    }
+    }catch{ alert("Error al actualizar estado."); e.target.checked=!e.target.checked; }
   }
 });
 document.addEventListener("click", async e=>{
-  if(!e.target.classList.contains("delete")) return;
-  const card = e.target.closest(".card"); if(!card) return;
-  const id = card.dataset.id;
-  if(confirm(`¿Eliminar pedido #${id}?`)){
-    try{ await apiDeleteRow(id);
-      ALL_ORDERS = ALL_ORDERS.filter(o=>String(o.row_id)!==String(id));
-      applyFilters(); applySort(); render();
-    }catch{ alert("No se pudo eliminar el pedido."); }
+  if(e.target.classList.contains("btn-delete")){
+    const card = e.target.closest(".card"); if(!card) return;
+    const id = card.dataset.id;
+    if(confirm(`¿Eliminar pedido #${id}?`)){
+      try{ await apiDeleteRow(id); ALL_ORDERS = ALL_ORDERS.filter(o=>String(o.row_id)!==String(id)); applyFilters(); applySort(); render(); }
+      catch{ alert("No se pudo eliminar el pedido."); }
+    }
+  }
+  if(e.target.classList.contains("btn-edit")){
+    const card = e.target.closest(".card"); if(!card) return; openEditor(card.dataset.id);
   }
 });
 
+/* Editor */
+const modalBackdrop = document.getElementById("modalBackdrop");
+const ed = {
+  coordinator: edCoordinator, phone: edPhone, state: edState, address: edAddress,
+  S: edS, M: edM, L: edL, XL: edXL, XXL: edXXL, XXXL: edXXXL,
+  price: edPrice, totalCalc: edTotalCalc,
+};
+function openEditor(id){
+  const o = ALL_ORDERS.find(x=>String(x.row_id)===String(id)); if(!o) return;
+  editingId = id;
+  ed.coordinator.value = o.coordinator||""; ed.phone.value = o.phone||"";
+  ed.state.value = o.state||"California"; ed.address.value = o.address||"";
+  ed.S.value=+o.S||0; ed.M.value=+o.M||0; ed.L.value=+o.L||0; ed.XL.value=+o.XL||0; ed.XXL.value=+o.XXL||0; ed.XXXL.value=+o.XXXL||0;
+  ed.price.value = (o.price_per_shirt!=null? o.price_per_shirt : 30);
+  recalcEditorTotal(); modalBackdrop.style.display="flex";
+}
+function closeEditor(){ modalBackdrop.style.display="none"; editingId=null; }
+function recalcEditorTotal(){
+  const S=+ed.S.value||0,M=+ed.M.value||0,L=+ed.L.value||0,XL=+ed.XL.value||0,XXL=+ed.XXL.value||0,XXXL=+ed.XXXL.value||0;
+  const total=S+M+L+XL+XXL+XXXL, p=+(ed.price.value||0);
+  ed.totalCalc.value = `${total} camisas — ${money(total*p)}`;
+}
+["edS","edM","edL","edXL","edXXL","edXXXL","edPrice"].forEach(id=> document.getElementById(id).addEventListener("input", recalcEditorTotal));
+btnCancel.onclick = closeEditor;
+modalBackdrop.addEventListener("click", e=>{ if(e.target===modalBackdrop) closeEditor(); });
+btnSave.onclick = async ()=>{
+  if(!editingId) return;
+  const patch = {
+    coordinator: ed.coordinator.value.trim(), phone: ed.phone.value.trim(),
+    state: ed.state.value, address: ed.address.value.trim(),
+    S:+ed.S.value||0, M:+ed.M.value||0, L:+ed.L.value||0, XL:+ed.XL.value||0, XXL:+ed.XXL.value||0, XXXL:+ed.XXXL.value||0,
+    price_per_shirt:+(ed.price.value||0)
+  };
+  patch.total = patch.S+patch.M+patch.L+patch.XL+patch.XXL+patch.XXXL;
+  patch.total_cost = patch.total * patch.price_per_shirt;
+  try{
+    await apiPatchRow(editingId, patch);
+    const idx = ALL_ORDERS.findIndex(o=>String(o.row_id)===String(editingId));
+    if(idx>=0) Object.assign(ALL_ORDERS[idx], patch);
+    closeEditor(); applyFilters(); applySort(); render();
+  }catch(err){ alert("No se pudo guardar los cambios."); console.error(err); }
+};
+
 /* Init */
-wireFilters();
-/* Auto login */
-(function(){ if(getPassword()===GATE_PASSWORD){ setUI(true); refresh().catch(()=>{});} })();
+if(getPw()===GATE_PASSWORD){ setUI(true); refresh().catch(()=>{}); }
 </script>
 </body>
 </html>
