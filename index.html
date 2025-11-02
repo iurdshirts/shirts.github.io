@@ -116,7 +116,7 @@
       </div>
     </div>
 
-    <div class="note">
+    <div class="note" id="zelleNote">
       💳 Por favor envíe el total (incluyendo el número total de camisetas) por Zelle al  
       <strong>+1 (424) 223-1211</strong>.
     </div>
@@ -133,7 +133,7 @@ const PRICE_PER_SHIRT = 30;
 
 function getOrders(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
 function saveOrders(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
-function fmtMoney(n){ return n.toLocaleString(undefined,{style:"currency",currency:"USD",minimumFractionDigits:2}); }
+function fmtMoney(n){ return n.toLocaleString("es-US",{style:"currency",currency:"USD",minimumFractionDigits:2}); }
 function readQty(id){ return Math.max(0, parseInt(document.getElementById(id).value || "0", 10)); }
 
 function updateTotals(){
@@ -149,6 +149,14 @@ function updateTotals(){
   document.getElementById('sumXXXL').textContent = XXXL;
   document.getElementById('sumTotal').textContent = total;
   document.getElementById('sumCost').textContent = fmtMoney(cost);
+
+  // actualizar nota de zelle dinámicamente
+  const zelleNote = document.getElementById('zelleNote');
+  if (total > 0) {
+    zelleNote.innerHTML = `💳 Por favor envíe el total de <strong>${total} camiseta${total>1?'s':''} (${fmtMoney(cost)})</strong> por Zelle al <strong>+1 (424) 223-1211</strong>.`;
+  } else {
+    zelleNote.innerHTML = `💳 Por favor envíe el total (incluyendo el número total de camisetas) por Zelle al <strong>+1 (424) 223-1211</strong>.`;
+  }
 }
 
 function serializeForm(){
@@ -177,7 +185,7 @@ document.getElementById('orderForm').addEventListener('submit', e=>{
   const orders = getOrders();
   orders.push(rec);
   saveOrders(orders);
-  alert(`✅ ¡Pedido guardado! Camisetas totales: ${rec.total} • Total: ${rec.total_cost.toLocaleString(undefined,{style:"currency",currency:"USD"})}`);
+  alert(`✅ ¡Pedido guardado! Camisetas totales: ${rec.total} • Total: ${fmtMoney(rec.total_cost)}`);
   e.target.reset();
   updateTotals();
 });
