@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Pedidos – Panel</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#f6f7f9;color:#222}
+  .wrap{max-width:1100px;margin:2rem auto;background:#fff;padding:1.25rem 1.5rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
+  h1{margin:0 0 1rem;text-align:center}
+  .controls{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-bottom:1rem}
+  input[type="password"],input[type="text"]{padding:.5rem;border:1px solid #ccc;border-radius:8px}
+  button{padding:.55rem .9rem;border-radius:8px;border:0;background:#0a7cff;color:#fff;cursor:pointer}
+  button.secondary{background:#eef2f7;color:#0a2850;border:1px solid #d8dee6}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:.6rem;border-bottom:1px solid #e5e7eb;text-align:left;font-size:.95rem}
+  th{background:#f3f4f6}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .badge{padding:.1rem .5rem;border-radius:999px;font-size:.75rem}
+  .ok{background:#e6ffed;color:#065f46}
+  .warn{background:#fff7ed;color:#9a3412}
+  .danger{background:#fee2e2;color:#991b1b}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pedidos – Panel</h1>
+  <div class="controls">
+    <input id="apiKey" type="password" placeholder="API Key" />
+    <button id="load" class="secondary">Cargar</button>
+    <button id="export" class="secondary">Exportar CSV</button>
+  </div>
+
+  <div style="overflow:auto">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Fecha (UTC)</th>
+          <th>Coordinador</th>
+          <th>Teléfono</th>
+          <th>Estado</th>
+          <th>Dirección</th>
+          <th class="num">S</th><th class="num">M</th><th class="num">L</th>
+          <th class="num">XL</th><th class="num">2XL</th><th class="num">3XL</th>
+          <th class="num">Total</th>
+          <th class="num">$ c/u</th>
+          <th class="num">Total $</th>
+          <th>Confirmado</th>
+          <th>Entregado</th>
+          <th>Eliminar</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://api.salcedo.app";
+const ORDERS_URL = API_BASE + "/orders";
+
+function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
+function esc(s){ return String(s??"").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m])); }
+
+async function apiGetOrders(key){
+  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": key }});
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function apiPatchRow(key,row_id,patch){
+  const res = await fetch(`${ORDERS_URL}/${row_id}`, {
+    method: "PATCH",
+    headers: { "X-API-Key": key, "Content-Type":"application/json" },
+    body: JSON.stringify(patch)
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function apiDeleteRow(key,row_id){
+  const res = await fetch(`${ORDERS_URL}/${row_id}`, {
+    method: "DELETE",
+    headers: { "X-API-Key": key }
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function rowHtml(o, i){
+  const c = (String(o.confirmed).toLowerCase()==="true");
+  const d = (String(o.delivered).toLowerCase()==="true");
+  return `<tr data-id="${i}">
+    <td>${i}</td>
+    <td>${esc(o.timestamp)}</td>
+    <td>${esc(o.coordinator)}</td>
+    <td>${esc(o.phone)}</td>
+    <td>${esc(o.state)}</td>
+    <td>${esc(o.address)}</td>
+    <td class="num">${o.S}</td><td class="num">${o.M}</td><td class="num">${o.L}</td>
+    <td class="num">${o.XL}</td><td class="num">${o.XXL}</td><td class="num">${o.XXXL}</td>
+    <td class="num">${o.total}</td>
+    <td class="num">${money(o.price_per_shirt)}</td>
+    <td class="num">${money(o.total_cost)}</td>
+    <td><input type="checkbox" class="chk-confirm" ${c?'checked':''}></td>
+    <td><input type="checkbox" class="chk-deliver" ${d?'checked':''}></td>
+    <td><button class="del danger">Eliminar</button></td>
+  </tr>`;
+}
+
+async function loadTable(){
+  const key = document.getElementById('apiKey').value.trim();
+  if(!key){ alert("Ingresa el API Key."); return; }
+  const data = await apiGetOrders(key);
+  const tbody = document.querySelector("#tbl tbody");
+  tbody.innerHTML = data.orders.map(o => rowHtml(o, o.row_id)).join("");
+}
+
+document.getElementById('load').addEventListener('click', loadTable);
+
+document.getElementById('export').addEventListener('click', async ()=>{
+  // Simple client export of the table view
+  const csv = [];
+  document.querySelectorAll("#tbl tr").forEach((tr)=>{
+    const cells = [...tr.children].map(td => {
+      const t = td.querySelector('input') ? (td.querySelector('input').checked ? "true":"false") : td.textContent.trim();
+      return `"${t.replaceAll('"','""')}"`;
+    });
+    csv.push(cells.join(","));
+  });
+  const blob = new Blob([csv.join("\n")], {type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), {href:url, download:`orders_export_${Date.now()}.csv`});
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+// Event delegation for toggles & delete
+document.querySelector("#tbl").addEventListener("change", async (e)=>{
+  const tr = e.target.closest("tr"); if(!tr) return;
+  const row_id = tr.getAttribute("data-id");
+  const key = document.getElementById('apiKey').value.trim();
+  if(e.target.classList.contains("chk-confirm")){
+    try{ await apiPatchRow(key, row_id, { confirmed: e.target.checked }); }
+    catch(err){ alert("No se pudo actualizar (confirmado)."); e.target.checked = !e.target.checked; }
+  }
+  if(e.target.classList.contains("chk-deliver")){
+    try{ await apiPatchRow(key, row_id, { delivered: e.target.checked }); }
+    catch(err){ alert("No se pudo actualizar (entregado)."); e.target.checked = !e.target.checked; }
+  }
+});
+
+document.querySelector("#tbl").addEventListener("click", async (e)=>{
+  if(!e.target.classList.contains("del")) return;
+  const tr = e.target.closest("tr");
+  const row_id = tr.getAttribute("data-id");
+  const key = document.getElementById('apiKey').value.trim();
+  if(!confirm(`¿Eliminar fila #${row_id}? Esta acción no se puede deshacer.`)) return;
+  try{
+    await apiDeleteRow(key, row_id);
+    tr.remove();
+  }catch(err){
+    alert("No se pudo eliminar la fila.");
+  }
+});
+</script>
+</body>
+</html>
