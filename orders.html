@@ -11,12 +11,10 @@
     --red:#ef4444; --orange:#fb923c; --green:#22c55e;
     --redbg:#fff1f2; --orangebg:#fff7ed; --greenbg:#ecfdf5;
   }
-  /* Layout */
   body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
   .wrap{max-width:760px;margin:1rem auto;padding:1rem}
   h1{font-size:1.6rem;margin:.5rem 0 1rem;text-align:center}
 
-  /* Inputs / buttons */
   input[type="password"],input[type="text"],select{
     padding:.7rem .8rem;border:1px solid #cbd5e1;border-radius:12px;font-size:1rem;background:#fff
   }
@@ -25,14 +23,12 @@
   .muted{color:var(--muted)}
   .hidden{display:none}
 
-  /* Toolbar + stats */
   .toolbar{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center;margin:0 0 .75rem}
   .filters{display:flex;flex-wrap:wrap;gap:.6rem}
   .stats{display:flex;flex-wrap:wrap;gap:.6rem;margin:.5rem 0 1rem}
   .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:.6rem .8rem;font-size:.95rem}
   .stat b{font-variant-numeric:tabular-nums}
 
-  /* One-column card list */
   .cards{display:flex;flex-direction:column;gap:1rem}
   .card{
     background:#fff;border-radius:16px;border:1px solid var(--line);box-shadow:0 6px 16px rgba(0,0,0,.06);
@@ -66,10 +62,8 @@
   .btn-delete{background:var(--red)}
   .btn-edit{background:#0ea5e9}
 
-  /* Gate row */
   .gate{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:1rem}
 
-  /* Modal (edit) */
   .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
   .modal{max-width:720px;width:100%;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;border:1px solid var(--line)}
   .modal header{padding:1rem 1.25rem;border-bottom:1px solid var(--line);font-weight:800;font-size:1.15rem}
@@ -88,11 +82,10 @@
 <div class="wrap">
   <h1>Pedidos – Panel</h1>
 
-  <!-- Password Gate -->
+  <!-- Password Gate (no password shown) -->
   <div id="gate" class="gate">
-    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)" />
+    <input id="passwordInput" type="password" placeholder="Contraseña" />
     <button id="unlock">Entrar</button>
-    <span class="muted">Contraseña por defecto: <code>password</code></span>
   </div>
 
   <div id="panel" class="hidden">
@@ -143,7 +136,6 @@
       </div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap">
         <button id="reload" class="secondary">Recargar</button>
-        <button id="export" class="secondary">Exportar CSV</button>
         <button id="lock" class="secondary">Bloquear</button>
       </div>
     </div>
@@ -158,7 +150,7 @@
       <div class="stat">Total $: <b id="sumAmount">$0.00</b></div>
     </div>
 
-    <!-- Cards (single column) -->
+    <!-- Cards -->
     <div id="cards" class="cards"></div>
   </div>
 </div>
@@ -234,8 +226,8 @@
 <script>
 const API_BASE = "https://api.salcedo.app";
 const ORDERS_URL = API_BASE + "/orders";
-const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb"; // igual que backend
-const GATE_PASSWORD = "password";
+const API_KEY = "4Tg7M1Qp9eXc!5zLw2nY@0Rb"; // backend key (no se muestra en UI)
+const GATE_PASSWORD = "password";          // NO se muestra en la página
 const LS_KEY = "iurd_orders_password";
 
 let ALL_ORDERS = [];
@@ -258,7 +250,11 @@ const getPw =()=>localStorage.getItem(LS_KEY)||"";
 const setPw =p=>localStorage.setItem(LS_KEY,p);
 const clrPw =()=>localStorage.removeItem(LS_KEY);
 const setUI = a => { gate.classList.toggle('hidden',a); panel.classList.toggle('hidden',!a); };
-unlock.onclick = async ()=>{ const pw = passwordInput.value.trim(); if(pw===GATE_PASSWORD){ setPw(pw); setUI(true); await refresh(); } else alert("Contraseña incorrecta."); };
+unlock.onclick = async ()=>{
+  const pw = passwordInput.value.trim();
+  if(pw===GATE_PASSWORD){ setPw(pw); setUI(true); await refresh(); }
+  else alert("Contraseña incorrecta.");
+};
 lock.onclick   = ()=>{ clrPw(); setUI(false); };
 
 /* API */
@@ -278,7 +274,7 @@ async function apiDeleteRow(id){
   return r.json();
 }
 
-/* Render one-column cards */
+/* Render */
 function cardHtml(o){
   const paid = String(o.confirmed).toLowerCase()==="true";
   const del  = String(o.delivered).toLowerCase()==="true";
@@ -385,20 +381,6 @@ clearFilters.onclick = ()=>{
 /* Data */
 async function refresh(){ const data = await apiGetOrders(); ALL_ORDERS = data.orders||[]; applyFilters(); applySort(); render(); }
 reload.onclick = refresh;
-
-/* Export CSV of current view */
-export.onclick = ()=>{
-  const headers = ["#","Fecha","Coordinador","Teléfono","Estado","Dirección","S","M","L","XL","2XL","3XL","Total","$ c/u","Total $","Pagado","Entregado"];
-  const rows = VIEW_ORDERS.map(o=>[
-    o.row_id,o.timestamp,o.coordinator,o.phone,o.state,o.address,
-    o.S,o.M,o.L,o.XL,o.XXL,o.XXXL,o.total,o.price_per_shirt,o.total_cost,
-    String(o.confirmed).toLowerCase()==="true",String(o.delivered).toLowerCase()==="true"
-  ]);
-  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv],{type:"text/csv"}); const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'),{href:url,download:`orders_${Date.now()}.csv`});
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-};
 
 /* Card actions (toggle, delete, edit) */
 document.addEventListener("change", async e=>{
