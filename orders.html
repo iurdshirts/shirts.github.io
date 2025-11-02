@@ -3,96 +3,198 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Pedidos – Panel</title>
+<title>Pedidos – Panel (Protegido)</title>
 <style>
-  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:#f6f7f9;color:#222}
-  .wrap{max-width:1100px;margin:2rem auto;background:#fff;padding:1.25rem 1.5rem;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.1)}
-  h1{margin:0 0 1rem;text-align:center}
-  .controls{display:flex;gap:.5rem;justify-content:flex-end;flex-wrap:wrap;margin-bottom:1rem}
-  input[type="password"],input[type="text"]{padding:.5rem;border:1px solid #ccc;border-radius:8px}
-  button{padding:.55rem .9rem;border-radius:8px;border:0;background:#0a7cff;color:#fff;cursor:pointer}
-  button.secondary{background:#eef2f7;color:#0a2850;border:1px solid #d8dee6}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:.6rem;border-bottom:1px solid #e5e7eb;text-align:left;font-size:.95rem}
-  th{background:#f3f4f6}
-  td.num{text-align:right;font-variant-numeric:tabular-nums}
-  .badge{padding:.1rem .5rem;border-radius:999px;font-size:.75rem}
-  .ok{background:#e6ffed;color:#065f46}
-  .warn{background:#fff7ed;color:#9a3412}
-  .danger{background:#fee2e2;color:#991b1b}
+  :root{
+    --bg:#f6f7f9; --fg:#222; --card:#fff; --muted:#6b7280; --line:#e5e7eb;
+    --btn:#0a7cff; --btn-ghost:#eef2f7; --btn-ghost-fg:#0a2850;
+  }
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
+  .wrap{
+    max-width:1200px; /* wider so it breathes */
+    margin:1rem auto;
+    background:var(--card);
+    padding:1rem 1rem 1.25rem;
+    border-radius:12px;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+  }
+  h1{margin:.25rem 0 1rem;text-align:center;font-size:1.4rem}
+
+  /* Controls / gate */
+  .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;justify-content:flex-end;margin-bottom:.75rem}
+  .row.left{justify-content:flex-start}
+  input[type="password"], input[type="text"]{
+    padding:.6rem .7rem;border:1px solid #ccc;border-radius:10px;min-width:260px;font-size:.95rem
+  }
+  button{
+    padding:.6rem .9rem;border-radius:10px;border:0;background:var(--btn);color:#fff;cursor:pointer;font-size:.95rem
+  }
+  button.secondary{background:var(--btn-ghost);color:var(--btn-ghost-fg);border:1px solid #d8dee6}
+
+  .muted{color:var(--muted)}
+  .hidden{display:none}
+
+  /* Table container: scrolls horizontally if needed */
+  .table-wrap{
+    overflow:auto; /* key to avoid clipping */
+    border:1px solid var(--line);
+    border-radius:10px;
+  }
+
+  table{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
+  th,td{
+    padding:.6rem .6rem;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:top
+  }
+  thead th{
+    position:sticky; top:0; z-index:1;
+    background:#f9fafb; border-bottom:1px solid var(--line);
+  }
+
+  /* Column sizing + wrapping */
+  th:nth-child(1), td:nth-child(1){width:48px}
+  th:nth-child(2), td:nth-child(2){width:160px}
+  th:nth-child(3), td:nth-child(3){width:160px}
+  th:nth-child(4), td:nth-child(4){width:120px}
+  th:nth-child(5), td:nth-child(5){width:110px}
+  th:nth-child(6), td:nth-child(6){width:220px}
+  th:nth-child(7),td:nth-child(7),
+  th:nth-child(8),td:nth-child(8),
+  th:nth-child(9),td:nth-child(9),
+  th:nth-child(10),td:nth-child(10),
+  th:nth-child(11),td:nth-child(11),
+  th:nth-child(12),td:nth-child(12){width:64px; text-align:right}
+  th:nth-child(13),td:nth-child(13){width:76px; text-align:right}
+  th:nth-child(14),td:nth-child(14){width:76px; text-align:right}
+  th:nth-child(15),td:nth-child(15){width:92px; text-align:right}
+  th:nth-child(16),td:nth-child(16),
+  th:nth-child(17),td:nth-child(17){width:110px; text-align:center}
+  th:nth-child(18),td:nth-child(18){width:100px; text-align:center}
+
+  td{word-break:break-word}
+  td.num{font-variant-numeric:tabular-nums}
+  td input[type="checkbox"]{transform:scale(1.1)}
+
+  /* Buttons in table */
+  .danger{background:#e11d48;color:#fff;border:0;padding:.45rem .7rem;border-radius:8px}
+
+  /* Small screens */
+  @media (max-width: 700px){
+    .wrap{margin:.5rem;border-radius:10px;padding:.75rem}
+    h1{font-size:1.1rem}
+    th,td{font-size:.86rem;padding:.5rem}
+    input[type="password"], input[type="text"]{min-width:200px}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Pedidos – Panel</h1>
-  <div class="controls">
-    <input id="apiKey" type="password" placeholder="API Key" />
-    <button id="load" class="secondary">Cargar</button>
-    <button id="export" class="secondary">Exportar CSV</button>
+
+  <!-- Gate: require password -->
+  <div id="gate" class="row left">
+    <input id="passwordInput" type="password" placeholder="Contraseña (por defecto: password)" />
+    <button id="unlock">Entrar</button>
+    <span class="muted">La contraseña por defecto es <code>password</code></span>
   </div>
 
-  <div style="overflow:auto">
-    <table id="tbl">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Fecha (UTC)</th>
-          <th>Coordinador</th>
-          <th>Teléfono</th>
-          <th>Estado</th>
-          <th>Dirección</th>
-          <th class="num">S</th><th class="num">M</th><th class="num">L</th>
-          <th class="num">XL</th><th class="num">2XL</th><th class="num">3XL</th>
-          <th class="num">Total</th>
-          <th class="num">$ c/u</th>
-          <th class="num">Total $</th>
-          <th>Confirmado</th>
-          <th>Entregado</th>
-          <th>Eliminar</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div id="panel" class="hidden">
+    <div class="row">
+      <button id="reload" class="secondary">Cargar</button>
+      <button id="export" class="secondary">Exportar CSV</button>
+      <button id="lock" class="secondary">Bloquear</button>
+    </div>
+
+    <div class="table-wrap">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fecha (UTC)</th>
+            <th>Coordinador</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Dirección</th>
+            <th>S</th><th>M</th><th>L</th>
+            <th>XL</th><th>2XL</th><th>3XL</th>
+            <th>Total</th>
+            <th>$ c/u</th>
+            <th>Total $</th>
+            <th>Confirmado</th>
+            <th>Entregado</th>
+            <th>Eliminar</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <script>
+/* --- Config --- */
 const API_BASE = "https://api.salcedo.app";
 const ORDERS_URL = API_BASE + "/orders";
+const DEFAULT_PASSWORD = "password"; // change here when you change .env on server
+const LS_KEY = "iurd_orders_password";
 
+/* --- Auth (password gate) --- */
+function getPassword(){ return localStorage.getItem(LS_KEY) || ""; }
+function setPassword(p){ localStorage.setItem(LS_KEY, p); }
+function clearPassword(){ localStorage.removeItem(LS_KEY); }
+function setUI(authed){
+  document.getElementById('gate').classList.toggle('hidden', authed);
+  document.getElementById('panel').classList.toggle('hidden', !authed);
+}
+async function unlock(){
+  const pw = document.getElementById('passwordInput').value.trim();
+  if(!pw){ alert("Ingresa la contraseña."); return; }
+  if(pw === DEFAULT_PASSWORD){
+    setPassword(pw);
+    setUI(true);
+    await loadTable();
+  } else {
+    alert("Contraseña incorrecta.");
+  }
+}
+function lock(){ clearPassword(); setUI(false); document.getElementById('passwordInput').value = ""; }
+
+document.getElementById('unlock').addEventListener('click', unlock);
+document.getElementById('lock').addEventListener('click', lock);
+
+/* --- API helpers --- */
 function money(n){ return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD'}); }
 function esc(s){ return String(s??"").replace(/[&<>"]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m])); }
 
-async function apiGetOrders(key){
-  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": key }});
+async function apiGetOrders(){
+  const res = await fetch(ORDERS_URL, { headers: { "X-API-Key": DEFAULT_PASSWORD }});
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
-
-async function apiPatchRow(key,row_id,patch){
+async function apiPatchRow(row_id, patch){
   const res = await fetch(`${ORDERS_URL}/${row_id}`, {
     method: "PATCH",
-    headers: { "X-API-Key": key, "Content-Type":"application/json" },
+    headers: { "X-API-Key": DEFAULT_PASSWORD, "Content-Type":"application/json" },
     body: JSON.stringify(patch)
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
-
-async function apiDeleteRow(key,row_id){
+async function apiDeleteRow(row_id){
   const res = await fetch(`${ORDERS_URL}/${row_id}`, {
     method: "DELETE",
-    headers: { "X-API-Key": key }
+    headers: { "X-API-Key": DEFAULT_PASSWORD }
   });
   if(!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
-function rowHtml(o, i){
+/* --- Table rendering --- */
+function rowHtml(o){
   const c = (String(o.confirmed).toLowerCase()==="true");
   const d = (String(o.delivered).toLowerCase()==="true");
-  return `<tr data-id="${i}">
-    <td>${i}</td>
+  return `<tr data-id="${o.row_id}">
+    <td>${o.row_id}</td>
     <td>${esc(o.timestamp)}</td>
     <td>${esc(o.coordinator)}</td>
     <td>${esc(o.phone)}</td>
@@ -103,51 +205,50 @@ function rowHtml(o, i){
     <td class="num">${o.total}</td>
     <td class="num">${money(o.price_per_shirt)}</td>
     <td class="num">${money(o.total_cost)}</td>
-    <td><input type="checkbox" class="chk-confirm" ${c?'checked':''}></td>
-    <td><input type="checkbox" class="chk-deliver" ${d?'checked':''}></td>
-    <td><button class="del danger">Eliminar</button></td>
+    <td style="text-align:center"><input type="checkbox" class="chk-confirm" ${c?'checked':''}></td>
+    <td style="text-align:center"><input type="checkbox" class="chk-deliver" ${d?'checked':''}></td>
+    <td style="text-align:center"><button class="del danger">Eliminar</button></td>
   </tr>`;
 }
 
 async function loadTable(){
-  const key = document.getElementById('apiKey').value.trim();
-  if(!key){ alert("Ingresa el API Key."); return; }
-  const data = await apiGetOrders(key);
-  const tbody = document.querySelector("#tbl tbody");
-  tbody.innerHTML = data.orders.map(o => rowHtml(o, o.row_id)).join("");
+  const data = await apiGetOrders();
+  document.querySelector("#tbl tbody").innerHTML = data.orders.map(rowHtml).join("");
 }
 
-document.getElementById('load').addEventListener('click', loadTable);
+document.getElementById('reload').addEventListener('click', loadTable);
 
-document.getElementById('export').addEventListener('click', async ()=>{
-  // Simple client export of the table view
+/* Export what you see */
+document.getElementById('export').addEventListener('click', ()=>{
+  const table = document.querySelector("#tbl");
+  if(!table) return;
   const csv = [];
-  document.querySelectorAll("#tbl tr").forEach((tr)=>{
-    const cells = [...tr.children].map(td => {
-      const t = td.querySelector('input') ? (td.querySelector('input').checked ? "true":"false") : td.textContent.trim();
-      return `"${t.replaceAll('"','""')}"`;
+  table.querySelectorAll("tr").forEach(tr=>{
+    const cells = [...tr.children].map(td=>{
+      const input = td.querySelector('input');
+      const text = input ? (input.checked ? "true":"false") : td.textContent.trim();
+      return `"${text.replaceAll('"','""')}"`;
     });
     csv.push(cells.join(","));
   });
   const blob = new Blob([csv.join("\n")], {type:"text/csv"});
   const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), {href:url, download:`orders_export_${Date.now()}.csv`});
+  const a = Object.assign(document.createElement('a'), {href:url, download:`orders_${Date.now()}.csv`});
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 });
 
-// Event delegation for toggles & delete
+/* Delegated events for toggles & delete */
 document.querySelector("#tbl").addEventListener("change", async (e)=>{
   const tr = e.target.closest("tr"); if(!tr) return;
   const row_id = tr.getAttribute("data-id");
-  const key = document.getElementById('apiKey').value.trim();
   if(e.target.classList.contains("chk-confirm")){
-    try{ await apiPatchRow(key, row_id, { confirmed: e.target.checked }); }
-    catch(err){ alert("No se pudo actualizar (confirmado)."); e.target.checked = !e.target.checked; }
+    try{ await apiPatchRow(row_id, { confirmed: e.target.checked }); }
+    catch{ alert("No se pudo actualizar (confirmado)."); e.target.checked = !e.target.checked; }
   }
   if(e.target.classList.contains("chk-deliver")){
-    try{ await apiPatchRow(key, row_id, { delivered: e.target.checked }); }
-    catch(err){ alert("No se pudo actualizar (entregado)."); e.target.checked = !e.target.checked; }
+    try{ await apiPatchRow(row_id, { delivered: e.target.checked }); }
+    catch{ alert("No se pudo actualizar (entregado)."); e.target.checked = !e.target.checked; }
   }
 });
 
@@ -155,14 +256,9 @@ document.querySelector("#tbl").addEventListener("click", async (e)=>{
   if(!e.target.classList.contains("del")) return;
   const tr = e.target.closest("tr");
   const row_id = tr.getAttribute("data-id");
-  const key = document.getElementById('apiKey').value.trim();
-  if(!confirm(`¿Eliminar fila #${row_id}? Esta acción no se puede deshacer.`)) return;
-  try{
-    await apiDeleteRow(key, row_id);
-    tr.remove();
-  }catch(err){
-    alert("No se pudo eliminar la fila.");
-  }
+  if(!confirm(`¿Eliminar fila #${row_id}?`)) return;
+  try{ await apiDeleteRow(row_id); tr.remove(); }
+  catch{ alert("No se pudo eliminar la fila."); }
 });
 </script>
 </body>
